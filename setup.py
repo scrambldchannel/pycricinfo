@@ -1,19 +1,17 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="python-espncricinfo",
-    version="0.5.7",
-    description="ESPNCricInfo API client",
+    name="pycricinfo",
+    version="0.0.1",
+    description="A lightweight wrapper around Cricinfo",
     license="MIT",
     install_requires=["requests", "bs4", "dateparser"],
-    author="Derek Willis",
-    author_email="dwillis@gmail.com",
-    url="http://github.com/dwillis/python-espncricinfo",
-    packages=find_packages(),
-    keywords="espncricinfo cricket t20 odi",
-    classifiers=["Development Status :: 4 - Beta"],
-    zip_safe=True,
+    author="Alexander Sutcliffe",
+    author_email="sutcliffe.alex@gmail.com",
+    url="http://github.com/scrambldchannel/pycricinfo",
+    keywords="cricket",
+    classifiers=["Development Status :: 3 - Alpha"],
 )
