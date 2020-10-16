@@ -4,7 +4,7 @@ from typing import Optional
 import requests
 from bs4 import BeautifulSoup
 
-from pycricinfo.exceptions import MatchNotFoundError, NoScorecardError
+from pycricinfo.exceptions import PyCricinfoException
 
 
 class Match(object):
@@ -69,9 +69,9 @@ class Match(object):
     def get_json(self) -> dict:
         r = requests.get(self.json_url)
         if r.status_code == 404:
-            raise MatchNotFoundError
+            raise PyCricinfoException
         elif "Scorecard not yet available" in r.text:
-            raise NoScorecardError
+            raise PyCricinfoException
         else:
             return r.json()
 
@@ -84,7 +84,7 @@ class Match(object):
     def get_html(self) -> BeautifulSoup:
         r = requests.get(self.match_url)
         if r.status_code == 404:
-            raise MatchNotFoundError
+            raise PyCricinfoException
         else:
             return BeautifulSoup(r.text, "html.parser")
 

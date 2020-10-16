@@ -3,21 +3,19 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from pycricinfo.exceptions import MatchNotFoundError
-from pycricinfo.match import Match
+from pycricinfo.exceptions import PyCricinfoException
 
 
 class Summary(object):
-    def __init__(self):
+    def __init__(self) -> None:
         self.url = "https://www.espncricinfo.com/scores"
         self.html = self.get_html()
         self.match_ids = self._match_ids()
-        self.matches = self._build_matches()
 
     def get_html(self):
         r = requests.get(self.url)
         if r.status_code == 404:
-            raise MatchNotFoundError
+            raise PyCricinfoException
         else:
             return BeautifulSoup(r.text, "html.parser")
 
@@ -28,6 +26,7 @@ class Summary(object):
         except:
             return None
 
+    # replace this with
     def _match_ids(self):
         matches = [
             x["id"]
@@ -36,6 +35,3 @@ class Summary(object):
             ][0]["matchEvents"]
         ]
         return matches
-
-    def _build_matches(self):
-        return [Match(m) for m in self.match_ids]
