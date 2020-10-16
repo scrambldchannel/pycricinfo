@@ -10,7 +10,13 @@ from pycricinfo.exceptions import PyCricinfoException
 class Match(object):
 
     # fairly cludgy way to handle loading from a file, should probably accept filenames instead
-    def __init__(self, match_id: int, file_path: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        match_id: int,
+        html_file: Optional[str] = None,
+        json_file: Optional[str] = None,
+    ) -> None:
+
         self.match_id = match_id
         self.match_url = (
             f"https://www.espncricinfo.com/matches/engine/match/{match_id}.html"
@@ -19,13 +25,17 @@ class Match(object):
             f"https://www.espncricinfo.com/matches/engine/match/{match_id}.json"
         )
 
-        if file_path:
-            self.json = self.get_json_from_file(f"{file_path}/{self.match_id}.json")
-            self.html = self.get_html_from_file(f"{file_path}/{self.match_id}.html")
+        if json_file:
+            self.json = self.get_json_from_file(f"{json_file}")
         else:
             self.json = self.get_json()
-            self.html = self.get_html()
-            # thisis just a sub tree of the json objet I think
+
+        if html_file:
+            self.html = self.get_html_from_file(f"{html_file}")
+        else:
+            self.hmtl = self.get_html()
+
+        # this isn't the best name, maybe change to something that implies it's coming from the html (I think)
         self.comms_json = self.get_comms_json()
 
         if self.json:
@@ -38,9 +48,8 @@ class Match(object):
             self.legacy_scorecard_url = self._legacy_scorecard_url()
             self.series = self._series()
             self.series_id = self._series_id()
-            self.event_url = "https://core.espnuk.org/v2/sports/cricket/leagues/{0}/events/{1}".format(
-                str(self.series_id), str(match_id)
-            )
+            # interesting to see what this url is
+            self.event_url = f"https://core.espnuk.org/v2/sports/cricket/leagues/{self.series_id}/events/{match_id}"
             self.details_url = self._details_url()
             self.date = self._date()
             self.match_title = self._match_title()
