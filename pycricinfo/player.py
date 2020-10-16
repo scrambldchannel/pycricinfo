@@ -7,6 +7,8 @@ from pycricinfo.match import Match
 
 class Player(object):
     def __init__(self, player_id):
+
+        self.player_id = player_id
         self.url = f"https://www.espncricinfo.com/ci/content/player/{player_id}.html"
 
         # not working
@@ -22,7 +24,6 @@ class Player(object):
         # self.json = self.get_json()
 
         self.player_information = self._parse_player_information()
-        self.cricinfo_id = player_id
 
         if self.parsed_html:
             self.batting_fielding_averages = self._batting_fielding_averages()
