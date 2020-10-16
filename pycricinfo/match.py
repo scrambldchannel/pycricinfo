@@ -8,8 +8,6 @@ from pycricinfo.exceptions import PyCricinfoException
 
 
 class Match(object):
-
-    # fairly cludgy way to handle loading from a file, should probably accept filenames instead
     def __init__(
         self,
         match_id: int,
