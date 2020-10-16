@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-from pycricinfo.exceptions import PlayerNotFoundError
+from pycricinfo.exceptions import PyCricinfoException
 from pycricinfo.match import Match
 
 
@@ -31,7 +31,7 @@ class Player(object):
     def get_html(self):
         r = requests.get(self.url)
         if r.status_code == 404:
-            raise PlayerNotFoundError
+            raise PyCricinfoException
         else:
             soup = BeautifulSoup(r.text, "html.parser")
             return soup.find("div", class_="pnl490M")
@@ -40,7 +40,7 @@ class Player(object):
     def get_json(self):
         r = requests.get(self.json_url)
         if r.status_code == 404:
-            raise PlayerNotFoundError
+            raise PyCricinfoException
         else:
             return r.json()
 
