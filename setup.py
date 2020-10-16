@@ -8,7 +8,7 @@ setup(
     version="0.0.1",
     description="A lightweight wrapper around Cricinfo",
     license="MIT",
-    install_requires=["requests", "bs4", "dateparser"],
+    install_requires=["requests", "bs4"],
     author="Alexander Sutcliffe",
     author_email="sutcliffe.alex@gmail.com",
     url="http://github.com/scrambldchannel/pycricinfo",

@@ -4,7 +4,7 @@ from typing import Optional
 import requests
 from bs4 import BeautifulSoup
 
-from espncricinfo.exceptions import MatchNotFoundError, NoScorecardError
+from pycricinfo.exceptions import MatchNotFoundError, NoScorecardError
 
 
 class Match(object):

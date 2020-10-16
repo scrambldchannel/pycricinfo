@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
-from espncricinfo.exceptions import PlayerNotFoundError
-from espncricinfo.match import Match
+from pycricinfo.exceptions import PlayerNotFoundError
+from pycricinfo.match import Match
 
 
 class Player(object):

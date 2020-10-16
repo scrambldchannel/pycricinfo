@@ -3,8 +3,8 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-from espncricinfo.exceptions import MatchNotFoundError
-from espncricinfo.match import Match
+from pycricinfo.exceptions import MatchNotFoundError
+from pycricinfo.match import Match
 
 
 class Summary(object):
