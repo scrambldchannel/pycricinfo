@@ -85,10 +85,6 @@ class Match(object):
         return self.json["match"]["start_date_raw"]
 
     @cached_property
-    def match_title(self):
-        return self.json["match"]["cms_match_title"]
-
-    @cached_property
     def result(self):
         return self.json["live"]["status"]
 
