@@ -1,6 +1,6 @@
 import json
 from functools import cached_property
-from typing import Optional
+from typing import List
 
 from gazpacho import Soup, get
 
@@ -19,17 +19,19 @@ class LiveScores(object):
 
         self.url = "https://www.espncricinfo.com/scores"
 
+    # caching the results for now, this might need to be reviewed for this object
+
     @cached_property
-    def html(self):
+    def html(self) -> str:
         r = get(self.url)
         return r
 
     @cached_property
-    def soup(self):
+    def soup(self) -> Soup:
         return Soup(self.html)
 
     @cached_property
-    def embedded_json(self) -> Optional[dict]:
+    def embedded_json(self) -> dict:
         try:
             json_text = self.soup.find("script", attrs={"id": "__NEXT_DATA__"}).text
             return json.loads(json_text)
@@ -39,11 +41,12 @@ class LiveScores(object):
             )
 
     @cached_property
-    def get_live_matches(self):
-        matches = [
-            x["id"]
-            for x in self.embedded_json()["props"]["pageProps"]["data"]["content"][
-                "leagueEvents"
-            ][0]["matchEvents"]
-        ]
-        return matches
+    def live_matches(self) -> List[int]:
+        match_ids = []
+        for match in self.embedded_json["props"]["pageProps"]["data"]["content"][
+            "leagueEvents"
+        ][0]["matchEvents"]:
+
+            match_ids.append(int(match["id"]))
+
+        return match_ids
