@@ -1,11 +1,9 @@
 import json
 from functools import cached_property
 
-import requests
-from bs4 import BeautifulSoup
+from gazpacho import Soup, get
 
 from pycricinfo import Match
-from pycricinfo.exceptions import PyCricinfoException
 
 
 class Player(object):
@@ -41,11 +39,8 @@ class Player(object):
             with open(self.html_file, "r") as f:
                 return f.read()
         else:
-            r = requests.get(self.url, timeout=self.timeout)
-            if r.status_code == 404:
-                raise PyCricinfoException("Player.html", "404")
-            else:
-                return r.text
+            r = get(self.url)
+            return r
 
     @cached_property
     def json(self) -> dict:
@@ -54,25 +49,20 @@ class Player(object):
             with open(self.json_file, "r") as f:
                 return json.loads(f.read())
         else:
-            r = requests.get(self.json_url, timeout=self.timeout)
-            # need to do something to catch the timeout exception here
-            if r.status_code == 404:
-                raise PyCricinfoException("Team.json", "404")
-            else:
-                return r.json()
+            return get(self.json_url)
 
     @cached_property
-    def soup(self) -> BeautifulSoup:
-        return BeautifulSoup(self.html, "html.parser")
+    def soup(self) -> Soup:
+        return Soup(self.html)
 
     @cached_property
-    def parsed_html(self) -> BeautifulSoup:
-        return self.soup.find("div", class_="pnl490M")
+    def parsed_html(self) -> Soup:
+        return self.soup.find("div", attrs={"class": "pnl490M"})
 
     @cached_property
-    def player_information(self) -> BeautifulSoup:
+    def player_information(self) -> Soup:
         # not sure this is working
-        return self.parsed_html.find("div", class_="ciPlayerinformationtxt")
+        return self.parsed_html.find("div", attrs={"class": "ciPlayerinformationtxt"})
 
     @cached_property
     def batting_fielding_averages(self):
