@@ -24,7 +24,10 @@ class Player(object):
 
         # have simplified the html fetch to give raw html
         # it used to return div pnl490M
-        self.html = self.get_html()
+        if html_file:
+            self.html = self.get_html_from_file(f"{html_file}")
+        else:
+            self.html = self.get_html()
 
         # this replicates former functionality
         self.parsed_html = self.html.find("div", class_="pnl490M")
@@ -42,6 +45,10 @@ class Player(object):
             raise PyCricinfoException
         else:
             return BeautifulSoup(r.text, "html.parser")
+
+    def get_html_from_file(self, file: str) -> BeautifulSoup:
+        with open(file, "r") as f:
+            return BeautifulSoup(f.read(), "html.parser")
 
     # not working with any url I can locate
     def get_json(self) -> dict:
