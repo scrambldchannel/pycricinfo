@@ -1,3 +1,6 @@
+import json
+from functools import cached_property
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -11,59 +14,61 @@ class Player(object):
     """
 
     def __init__(
-        self, player_id: int, html_file: str = None, json_file: str = None
+        self,
+        player_id: int,
+        html_file: str = None,
+        json_file: str = None,
+        timeout: int = 5,
     ) -> None:
 
         self.player_id = player_id
         self.url = f"https://www.espncricinfo.com/ci/content/player/{player_id}.html"
 
-        # not working / need to review url
         self.json_url = (
+            # not working / need to review url
             f"https://core.espnuk.org/v2/sports/cricket/athletes/{player_id}"
         )
 
-        # have simplified the html fetch to give raw html
-        # it used to return div pnl490M
-        if html_file:
-            self.html = self.get_html_from_file(f"{html_file}")
+        self.html_file = html_file
+        self.json_file = json_file
+
+        self.timeout = timeout
+
+    @cached_property
+    def html(self) -> BeautifulSoup:
+
+        if self.html_file:
+            with open(self.html_file, "r") as f:
+                return BeautifulSoup(f.read(), "html.parser")
         else:
-            self.html = self.get_html()
+            r = requests.get(self.url, timeout=self.timeout)
+            if r.status_code == 404:
+                raise PyCricinfoException
+            else:
+                return BeautifulSoup(r.text, "html.parser")
 
-        # this replicates former functionality
-        self.parsed_html = self.html.find("div", class_="pnl490M")
+    @cached_property
+    def json(self) -> dict:
 
-        # not working as above
-        # self.json = self.get_json()
-
-        # need to look into what this does
-        # function returns paragraph ciPlayerinformationtxt from html which might need to be changed
-        self.player_information = self._parse_player_information()
-
-    def get_html(self) -> BeautifulSoup:
-        r = requests.get(self.url)
-        if r.status_code == 404:
-            raise PyCricinfoException
+        if self.json_file:
+            with open(self.json_file, "r") as f:
+                return json.loads(f.read())
         else:
-            return BeautifulSoup(r.text, "html.parser")
+            r = requests.get(self.json_url, timeout=self.timeout)
+            # need to do something to catch the timeout exception here
+            if r.status_code == 404:
+                raise PyCricinfoException("Team.json", "404")
+            else:
+                return r.json()
 
-    def get_html_from_file(self, file: str) -> BeautifulSoup:
-        with open(file, "r") as f:
-            return BeautifulSoup(f.read(), "html.parser")
+    @cached_property
+    def parsed_html(self) -> BeautifulSoup:
+        return self.html.find("div", class_="pnl490M")
 
-    # not working with any url I can locate
-    def get_json(self) -> dict:
-        r = requests.get(self.json_url)
-        # how to handle rejection here?
-        if r.status_code == 404:
-            raise PyCricinfoException
-        return r.json()
-
-    # this just pulls a single section of the html,
-    # should be refactored
-    def _parse_player_information(self):
+    @cached_property
+    def player_information(self) -> BeautifulSoup:
         return self.parsed_html.find_all("p", class_="ciPlayerinformationtxt")
 
-    # this does some serious parsing work, probably out of scope of what I'm trying to achieve but useful
     def _batting_fielding_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
             headers = [

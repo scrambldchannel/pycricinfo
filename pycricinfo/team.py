@@ -1,3 +1,4 @@
+import json
 from functools import cached_property
 
 import requests
@@ -50,11 +51,11 @@ class Team(object):
 
         if self.json_file:
             with open(self.json_file, "r") as f:
-                return BeautifulSoup(f.read(), "html.parser")
+                return json.loads(f.read())
         else:
             r = requests.get(self.json_url, timeout=self.timeout)
             # need to do something to catch the timeout exception here
             if r.status_code == 404:
                 raise PyCricinfoException("Team.json", "404")
             else:
-                return BeautifulSoup(r.text, "html.parser")
+                return r.json()
