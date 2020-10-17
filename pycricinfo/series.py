@@ -15,14 +15,6 @@ class Series(object):
         self.json_url = (
             f"http://core.espnuk.org/v2/sports/cricket/leagues/{self.series_id}/"
         )
-        # need to think about naming here - what is at this url?
-        self.events_url = (
-            f"http://core.espnuk.org/v2/sports/cricket/leagues/{self.series_id}/events"
-        )
-
-        self.seasons_url = (
-            f"http://core.espnuk.org/v2/sports/cricket/leagues/{self.series_id}/seasons"
-        )
 
         self.json = self.get_json()
 
