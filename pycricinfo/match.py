@@ -46,14 +46,10 @@ class Match(object):
             # leaving this here for now as they seem to all work for the matches I'm interested in
             # review this pattern in future though and create something more lightweight
 
-            self.__unicode__ = self._description()
             self.season = self._season()
             self.description = self._description()
             self.series = self._series()
             self.series_id = self._series_id()
-            # interesting to see what this url is
-            self.event_url = f"https://core.espnuk.org/v2/sports/cricket/leagues/{self.series_id}/events/{match_id}"
-            self.details_url = self._details_url()
             self.date = self._date()
             self.match_title = self._match_title()
             self.scheduled_overs = self._scheduled_overs()
