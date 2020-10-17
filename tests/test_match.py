@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pycricinfo.match import Match
+from pycricinfo import Match
 
 
 def test_test_match():

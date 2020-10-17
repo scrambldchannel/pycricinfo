@@ -1,4 +1,4 @@
-from pycricinfo.series import Series
+from pycricinfo import Series
 
 all_ipl_games = [
     1216492,

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pycricinfo.player import Player
+from pycricinfo import Player
 
 
 def test_player():
