@@ -29,48 +29,62 @@ class Match(object):
             f"https://www.espncricinfo.com/matches/engine/match/{match_id}.json"
         )
 
-        if html_file:
+        self.html_file = html_file
+        self.json_file = json_file
+
+        if self.html_file:
             self.html = self.get_html_from_file(f"{html_file}")
         else:
-            self.hmtl = self.get_html()
+            self.html = self.get_html()
 
-        if json_file:
+        if self.json_file:
             self.json = self.get_json_from_file(f"{json_file}")
         else:
             self.json = self.get_json()
 
-        # this isn't the best name, maybe change to something that implies it's coming from the html (I think)
-        self.comms_json = self.get_comms_json()
+        if self.html:
+            self.comms_json = self.get_comms_json()
+            # from comms_json which is a part of the
+            self.rosters = self.get_rosters()
+            self.all_innings = self.get_all_innings()
+            self.close_of_play = self.get_close_of_play()
 
         if self.json:
             # leaving this here for now as they seem to all work for the matches I'm interested in
             # review this pattern in future though and create something more lightweight
 
-            self.season = self._season()
-            self.description = self._description()
-            self.series = self._series()
-            self.series_id = self._series_id()
-            self.date = self._date()
-            self.match_title = self._match_title()
-            self.scheduled_overs = self._scheduled_overs()
-            self.innings_list = self._innings_list()
-            self.innings = self._innings()
-            self.team_1 = self._team_1()
-            self.team_1_id = self._team_1_id()
-            self.team_1_abbreviation = self._team_1_abbreviation()
-            self.team_1_players = self._team_1_players()
-            self.team_1_innings = self._team_1_innings()
-            self.team_2 = self._team_2()
-            self.team_2_id = self._team_2_id()
-            self.team_2_abbreviation = self._team_2_abbreviation()
-            self.team_2_players = self._team_2_players()
-            self.team_2_innings = self._team_2_innings()
+            self.description = self.get_description()
+            self.match_title = self.get_match_title()
+            self.date = self.get_date()
 
-            self.espn_api_url = self._espn_api_url()
-            # from comms_json
-            self.rosters = self._rosters()
-            self.all_innings = self._all_innings()
-            self.close_of_play = self._close_of_play()
+            self.ground_id = self.get_ground_id()
+            #            self.get_ground_name = self.get_ground_name()
+
+            self.season = self.get_season()
+            self.series = self.get_series()
+            self.series_id = self.get_series_id()
+
+            #            self.team_1 = self.get_team_1()
+            self.team_1_id = self.get_team_1_id()
+            self.team_1_abbreviation = self.get_team_1_abbreviation()
+            self.team_1_players = self.get_team_1_players()
+            self.team_1_innings = self.get_team_1_innings()
+            self.team_2 = self.get_team_2()
+            self.team_2_id = self.get_team_2_id()
+            self.team_2_abbreviation = self.get_team_2_abbreviation()
+            self.team_2_players = self.get_team_2_players()
+            self.team_2_innings = self.get_team_2_innings()
+
+            # what are these three urls?
+            self.espn_api_url = f"https://site.api.espn.com/apis/site/v2/sports/cricket/{self.series_id}/summary?event={self.match_id}"
+            self.event_url = "https://core.espnuk.org/v2/sports/cricket/leagues/{0}/events/{1}".format(
+                str(self.series_id), str(match_id)
+            )
+            page, number = 1, 1000
+            self.details_url = (
+                self.event_url
+                + f"/competitions/{self.match_id}/details?page_size={number}&page={page}"
+            )
 
     def get_json(self) -> dict:
         r = requests.get(self.json_url)
@@ -84,8 +98,7 @@ class Match(object):
     def get_json_from_file(self, file):
 
         with open(file, "r") as f:
-            j = json.loads(f.read())
-            return j
+            return json.loads(f.read())
 
     def get_html(self) -> BeautifulSoup:
         r = requests.get(self.match_url)
@@ -105,118 +118,101 @@ class Match(object):
         except PyCricinfoException:
             return None
 
-    def _espn_api_url(self) -> str:
-        # what is this? Move to constructor if useful
-        return f"https://site.api.espn.com/apis/site/v2/sports/cricket/{self.series_id}/summary?event={self.match_id}"
+    def get_season(self):
+        return self.json.get("Match", {}).get("season")
 
-    # as above
-    def _details_url(self, page=1, number=1000):
-        return (
-            self.event_url
-            + f"/competitions/{self.match_id}/details?page_size={number}&page={page}"
-        )
+    def get_description(self):
+        return self.json.get("description")
 
-    def _season(self):
-        return self.json["match"]["season"]
+    def get_series(self):
+        return self.json.get("series")
 
-    def _description(self):
-        return self.json["description"]
-
-    def _series(self):
-        return self.json["series"]
-
-    def _series_id(self):
+    def get_series_id(self):
         return self.json["series"][-1]["core_recreation_id"]
 
-    def _date(self):
+    def get_date(self):
         return self.json["match"]["start_date_raw"]
 
-    def _match_title(self):
+    def get_match_title(self):
         return self.json["match"]["cms_match_title"]
 
-    def _result(self):
+    def get_result(self):
         return self.json["live"]["status"]
 
-    def _ground_id(self):
+    def get_ground_id(self):
         return self.json["match"]["ground_id"]
 
-    def _ground_name(self):
+    def get_ground_name(self):
         return self.json["match"]["ground_name"]
 
-    def _scheduled_overs(self):
-        try:
-            return int(self.json["match"]["scheduled_overs"])
-        except:
-            return None
-
-    def _innings_list(self):
+    def get_innings_list(self):
         try:
             return self.json["centre"]["common"]["innings_list"]
         except:
             return None
 
-    def _innings(self):
+    def get_innings(self):
         return self.json["innings"]
 
-    def _team_1(self):
+    def get_team_1(self):
         return self.json["team"][0]
 
-    def _team_1_id(self):
-        return self._team_1()["team_id"]
+    def get_team_1_id(self):
+        return self.get_team_1()["team_id"]
 
-    def _team_1_abbreviation(self):
-        return self._team_1()["team_abbreviation"]
+    def get_team_1_abbreviation(self):
+        return self.get_team_1()["team_abbreviation"]
 
-    def _team_1_players(self):
-        return self._team_1().get("player", [])
+    def get_team_1_players(self):
+        return self.get_team_1().get("player", [])
 
-    def _team_1_innings(self):
+    def get_team_1_innings(self):
         try:
             return [
                 inn
                 for inn in self.json["innings"]
-                if inn["batting_team_id"] == self._team_1_id()
+                if inn["batting_team_id"] == self.get_team_1_id()
             ][0]
         except:
             return None
 
-    def _team_2(self):
+    def get_team_2(self):
         return self.json["team"][1]
 
-    def _team_2_id(self):
-        return self._team_2()["team_id"]
+    def get_team_2_id(self):
+        return self.get_team_2()["team_id"]
 
-    def _team_2_abbreviation(self):
-        return self._team_2()["team_abbreviation"]
+    def get_team_2_abbreviation(self):
+        return self.get_team_2()["team_abbreviation"]
 
-    def _team_2_players(self):
-        return self._team_2().get("player", [])
+    def get_team_2_players(self):
+        return self.get_team_2().get("player", [])
 
-    def _team_2_innings(self):
+    def get_team_2_innings(self):
         try:
             return [
                 inn
                 for inn in self.json["innings"]
-                if inn["batting_team_id"] == self._team_2_id()
+                if inn["batting_team_id"] == self.get_team_2_id()
             ][0]
         except:
             return None
 
     # comms_json methods
 
-    def _rosters(self):
+    def get_rosters(self):
         try:
             return self.comms_json["props"]["pageProps"]["data"]["content"]["teams"]
         except:
             return None
 
-    def _all_innings(self):
+    def get_all_innings(self):
         try:
             return self.comms_json["props"]["pageProps"]["data"]["content"]["innings"]
         except:
             return None
 
-    def _close_of_play(self):
+    def get_close_of_play(self):
         try:
             return self.comms_json["props"]["pageProps"]["data"]["content"]["closePlay"]
         except:
