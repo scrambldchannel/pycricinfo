@@ -2,8 +2,7 @@ import json
 from functools import cached_property
 from typing import Optional
 
-import requests
-from bs4 import BeautifulSoup
+from gazpacho import Soup, get
 
 from pycricinfo.exceptions import PyCricinfoException
 
@@ -41,11 +40,8 @@ class Match(object):
             with open(self.html_file, "r") as f:
                 return f.read()
         else:
-            r = requests.get(self.url, timeout=self.timeout)
-            if r.status_code == 404:
-                raise PyCricinfoException
-            else:
-                return r.text
+            r = get(self.url)
+            return r
 
     @cached_property
     def json(self) -> dict:
@@ -54,21 +50,16 @@ class Match(object):
             with open(self.json_file, "r") as f:
                 return json.loads(f.read())
         else:
-            r = requests.get(self.json_url, timeout=self.timeout)
-            # need to do something to catch the timeout exception here
-            if r.status_code == 404:
-                raise PyCricinfoException("Series.json", "404")
-            else:
-                return r.json()
+            return get(self.json_url)
 
     @cached_property
-    def soup(self) -> BeautifulSoup:
-        return BeautifulSoup(self.html, "html.parser")
+    def soup(self) -> Soup:
+        return Soup(self.html)
 
     @cached_property
     def comms_json(self) -> Optional[dict]:
         try:
-            text = self.soup.find_all("script")[15].string
+            text = self.soup.find("script")[15].text
             return json.loads(text)
         except PyCricinfoException:
             return None
