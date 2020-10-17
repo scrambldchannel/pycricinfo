@@ -61,8 +61,8 @@ class Match(object):
         try:
             json_text = self.soup.find("script", attrs={"id": "__NEXT_DATA__"}).text
             return json.loads(json_text)
-        except PyCricinfoException:
-            return None
+        except:
+            raise PyCricinfoException("Match.embedded_json", "Embedded JSON not found")
 
     @cached_property
     def season(self):

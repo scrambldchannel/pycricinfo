@@ -47,5 +47,5 @@ class Team(object):
         try:
             json_text = self.soup.find("script", attrs={"id": "__NEXT_DATA__"}).text
             return json.loads(json_text)
-        except PyCricinfoException:
-            return None
+        except:
+            raise PyCricinfoException("Team.embedded_json", "Embedded JSON not found")
