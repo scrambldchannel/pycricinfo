@@ -1,7 +1,10 @@
 import json
 from functools import cached_property
+from typing import Optional
 
 from gazpacho import Soup, get
+
+from pycricinfo import PyCricinfoException
 
 
 class Team(object):
@@ -53,3 +56,11 @@ class Team(object):
     @cached_property
     def soup(self) -> Soup:
         return Soup(self.html)
+
+    @cached_property
+    def embedded_json(self) -> Optional[dict]:
+        try:
+            json_text = self.soup.find("script", attrs={"id": "__NEXT_DATA__"}).text
+            return json.loads(json_text)
+        except PyCricinfoException:
+            return None
