@@ -6,51 +6,57 @@ from pycricinfo.match import Match
 
 
 class Player(object):
-    def __init__(self, player_id):
+    """
+    Abstraction of a player
+    """
+
+    def __init__(
+        self, player_id: int, html_file: str = None, json_file: str = None
+    ) -> None:
 
         self.player_id = player_id
         self.url = f"https://www.espncricinfo.com/ci/content/player/{player_id}.html"
 
-        # not working
-        # I had a look at the player page and I couldn't see anything that seemed to pull data from
-        # a json file. I know the player stats don't seem to update in realtime so maybe these pages
-        # are statically renderred?
+        # not working / need to review url
         self.json_url = (
             f"https://core.espnuk.org/v2/sports/cricket/athletes/{player_id}"
         )
 
-        self.parsed_html = self.get_html()
+        # have simplified the html fetch to give raw html
+        # it used to return div pnl490M
+        self.html = self.get_html()
+
+        # this replicates former functionality
+        self.parsed_html = self.html.find("div", class_="pnl490M")
+
         # not working as above
         # self.json = self.get_json()
 
+        # need to look into what this does
+        # function returns paragraph ciPlayerinformationtxt from html which might need to be changed
         self.player_information = self._parse_player_information()
 
-        if self.parsed_html:
-            self.batting_fielding_averages = self._batting_fielding_averages()
-            self.bowling_averages = self._bowling_averages()
-
-    def get_html(self):
+    def get_html(self) -> BeautifulSoup:
         r = requests.get(self.url)
         if r.status_code == 404:
             raise PyCricinfoException
         else:
-            soup = BeautifulSoup(r.text, "html.parser")
-            return soup.find("div", class_="pnl490M")
+            return BeautifulSoup(r.text, "html.parser")
 
     # not working with any url I can locate
-    def get_json(self):
+    def get_json(self) -> dict:
         r = requests.get(self.json_url)
+        # how to handle rejection here?
         if r.status_code == 404:
             raise PyCricinfoException
-        else:
-            return r.json()
+        return r.json()
 
+    # this just pulls a single section of the html,
+    # should be refactored
     def _parse_player_information(self):
         return self.parsed_html.find_all("p", class_="ciPlayerinformationtxt")
 
-    # I removed  a load of stuff to simplify the scope.
-    # I'm really only interested in the numbers so debuts etc have gone
-
+    # this does some serious parsing work, probably out of scope of what I'm trying to achieve but useful
     def _batting_fielding_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
             headers = [
@@ -122,18 +128,7 @@ class Player(object):
         else:
             return None
 
-    # these sort of lookup functions are potentially useful but maybe the logic doesn't belong here
-
-    def in_team_for_match(self, match_id):
-        m = Match(match_id)
-        if next(
-            (p for p in m.team_1_players if p["object_id"] == self.cricinfo_id), None
-        ) or next(
-            (p for p in m.team_2_players if p["object_id"] == self.cricinfo_id), None
-        ):
-            return True
-        else:
-            return False
+    # below is great functionality but should be moved to the match object
 
     def batting_for_match(self, match_id):
         batting_stats = []

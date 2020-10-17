@@ -8,14 +8,20 @@ from pycricinfo.exceptions import PyCricinfoException
 
 
 class Match(object):
+    """
+    Object that abstracts the information avialable about a match
+    """
+
     def __init__(
         self,
         match_id: int,
         html_file: Optional[str] = None,
         json_file: Optional[str] = None,
+        **kwargs,
     ) -> None:
 
         self.match_id = match_id
+
         self.match_url = (
             f"https://www.espncricinfo.com/matches/engine/match/{match_id}.html"
         )
@@ -23,15 +29,15 @@ class Match(object):
             f"https://www.espncricinfo.com/matches/engine/match/{match_id}.json"
         )
 
-        if json_file:
-            self.json = self.get_json_from_file(f"{json_file}")
-        else:
-            self.json = self.get_json()
-
         if html_file:
             self.html = self.get_html_from_file(f"{html_file}")
         else:
             self.hmtl = self.get_html()
+
+        if json_file:
+            self.json = self.get_json_from_file(f"{json_file}")
+        else:
+            self.json = self.get_json()
 
         # this isn't the best name, maybe change to something that implies it's coming from the html (I think)
         self.comms_json = self.get_comms_json()
