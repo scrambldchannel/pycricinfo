@@ -49,7 +49,6 @@ class Match(object):
             self.__unicode__ = self._description()
             self.season = self._season()
             self.description = self._description()
-            self.legacy_scorecard_url = self._legacy_scorecard_url()
             self.series = self._series()
             self.series_id = self._series_id()
             # interesting to see what this url is
@@ -70,9 +69,7 @@ class Match(object):
             self.team_2_abbreviation = self._team_2_abbreviation()
             self.team_2_players = self._team_2_players()
             self.team_2_innings = self._team_2_innings()
-            self.home_team = self._home_team()
-            self.batting_first = self._batting_first()
-            self.match_winner = self._match_winner()
+
             self.espn_api_url = self._espn_api_url()
             # from comms_json
             self.rosters = self._rosters()
@@ -105,9 +102,6 @@ class Match(object):
         with open(file, "r") as f:
             return BeautifulSoup(f.read(), "html.parser")
 
-    def match_json(self) -> dict:
-        return self.json["match"]
-
     def get_comms_json(self) -> Optional[dict]:
         try:
             text = self.html.find_all("script")[15].string
@@ -120,10 +114,6 @@ class Match(object):
         return f"https://site.api.espn.com/apis/site/v2/sports/cricket/{self.series_id}/summary?event={self.match_id}"
 
     # as above
-    def _legacy_scorecard_url(self) -> str:
-        return "https://static.espncricinfo.com" + self.match_json()["legacy_url"]
-
-    # as above
     def _details_url(self, page=1, number=1000):
         return (
             self.event_url
@@ -131,7 +121,7 @@ class Match(object):
         )
 
     def _season(self):
-        return self.match_json()["season"]
+        return self.json["match"]["season"]
 
     def _description(self):
         return self.json["description"]
@@ -143,23 +133,23 @@ class Match(object):
         return self.json["series"][-1]["core_recreation_id"]
 
     def _date(self):
-        return self.match_json()["start_date_raw"]
+        return self.json["match"]["start_date_raw"]
 
     def _match_title(self):
-        return self.match_json()["cms_match_title"]
+        return self.json["match"]["cms_match_title"]
 
     def _result(self):
         return self.json["live"]["status"]
 
     def _ground_id(self):
-        return self.match_json()["ground_id"]
+        return self.json["match"]["ground_id"]
 
     def _ground_name(self):
-        return self.match_json()["ground_name"]
+        return self.json["match"]["ground_name"]
 
     def _scheduled_overs(self):
         try:
-            return int(self.match_json()["scheduled_overs"])
+            return int(self.json["match"]["scheduled_overs"])
         except:
             return None
 
@@ -215,24 +205,6 @@ class Match(object):
             ][0]
         except:
             return None
-
-    def _home_team(self):
-        if self._team_1_id() == self.match_json()["home_team_id"]:
-            return self._team_1_abbreviation()
-        else:
-            return self._team_2_abbreviation()
-
-    def _batting_first(self):
-        if self._team_1_id() == self.match_json()["batting_first_team_id"]:
-            return self._team_1_abbreviation()
-        else:
-            return self._team_2_abbreviation()
-
-    def _match_winner(self):
-        if self._team_1_id() == self.match_json()["winner_team_id"]:
-            return self._team_1_abbreviation()
-        else:
-            return self._team_2_abbreviation()
 
     # comms_json methods
 
