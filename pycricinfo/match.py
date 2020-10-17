@@ -46,14 +46,10 @@ class Match(object):
             # leaving this here for now as they seem to all work for the matches I'm interested in
             # review this pattern in future though and create something more lightweight
 
-            self.__unicode__ = self._description()
             self.season = self._season()
             self.description = self._description()
             self.series = self._series()
             self.series_id = self._series_id()
-            # interesting to see what this url is
-            self.event_url = f"https://core.espnuk.org/v2/sports/cricket/leagues/{self.series_id}/events/{match_id}"
-            self.details_url = self._details_url()
             self.date = self._date()
             self.match_title = self._match_title()
             self.scheduled_overs = self._scheduled_overs()
@@ -223,45 +219,5 @@ class Match(object):
     def _close_of_play(self):
         try:
             return self.comms_json["props"]["pageProps"]["data"]["content"]["closePlay"]
-        except:
-            return None
-
-    def batsmen(self, innings):
-        try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["innings"][
-                str(innings)
-            ]["batsmen"]
-        except:
-            return None
-
-    def bowlers(self, innings):
-        try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["innings"][
-                str(innings)
-            ]["bowlers"]
-        except:
-            return None
-
-    def did_not_bat(self, innings):
-        try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["innings"][
-                str(innings)
-            ]["didNotBat"]
-        except:
-            return None
-
-    def extras(self, innings):
-        try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["innings"][
-                str(innings)
-            ]["extras"]
-        except:
-            return None
-
-    def fows(self, innings):
-        try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["innings"][
-                str(innings)
-            ]["fallOfWickets"]
         except:
             return None
