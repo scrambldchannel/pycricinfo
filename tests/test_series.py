@@ -891,7 +891,7 @@ def test_series():
 
 def test_get_seasons():
     s = Series(8048)
-    assert set(s.get_seasons()) == set(
+    assert set(s.seasons) == set(
         [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020]
     )
 
@@ -903,4 +903,4 @@ def test_get_season_matches():
 
 def test_get_all_matches():
     s = Series(8048)
-    assert set(s.get_all_matches()) == set(all_ipl_games)
+    assert set(s.all_matches) == set(all_ipl_games)
