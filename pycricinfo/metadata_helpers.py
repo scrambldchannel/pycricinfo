@@ -18,3 +18,6 @@ def get_recent_matches(date=None):
         x["href"].split("/", 4)[4].split(".")[0]
         for x in soup.findAll("a", href=True, text="Scorecard")
     ]
+
+
+# https://www.espncricinfo.com/ci/content/match/fixtures_futures.html

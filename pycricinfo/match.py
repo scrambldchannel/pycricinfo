@@ -57,10 +57,10 @@ class Match(object):
         return Soup(self.html)
 
     @cached_property
-    def comms_json(self) -> Optional[dict]:
+    def embedded_json(self) -> Optional[dict]:
         try:
-            text = self.soup.find("script")[15].text
-            return json.loads(text)
+            json_text = self.soup.find("script", attrs={"id": "__NEXT_DATA__"}).text
+            return json.loads(json_text)
         except PyCricinfoException:
             return None
 
@@ -161,25 +161,29 @@ class Match(object):
         except:
             return None
 
-    # comms_json methods
+    # embedded_json methods
 
     @cached_property
     def rosters(self):
         try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["teams"]
+            return self.embedded_json["props"]["pageProps"]["data"]["content"]["teams"]
         except:
             return None
 
     @cached_property
     def all_innings(self):
         try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["innings"]
+            return self.embedded_json["props"]["pageProps"]["data"]["content"][
+                "innings"
+            ]
         except:
             return None
 
     @cached_property
     def close_of_play(self):
         try:
-            return self.comms_json["props"]["pageProps"]["data"]["content"]["closePlay"]
+            return self.embedded_json["props"]["pageProps"]["data"]["content"][
+                "closePlay"
+            ]
         except:
             return None
