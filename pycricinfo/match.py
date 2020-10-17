@@ -35,17 +35,17 @@ class Match(object):
         self.timeout = timeout
 
     @cached_property
-    def html(self) -> BeautifulSoup:
+    def html(self) -> str:
 
         if self.html_file:
             with open(self.html_file, "r") as f:
-                return BeautifulSoup(f.read(), "html.parser")
+                return f.read()
         else:
             r = requests.get(self.url, timeout=self.timeout)
             if r.status_code == 404:
                 raise PyCricinfoException
             else:
-                return BeautifulSoup(r.text, "html.parser")
+                return r.text
 
     @cached_property
     def json(self) -> dict:
@@ -62,9 +62,13 @@ class Match(object):
                 return r.json()
 
     @cached_property
+    def soup(self) -> BeautifulSoup:
+        return BeautifulSoup(self.html, "html.parser")
+
+    @cached_property
     def comms_json(self) -> Optional[dict]:
         try:
-            text = self.html.find_all("script")[15].string
+            text = self.soup.find_all("script")[15].string
             return json.loads(text)
         except PyCricinfoException:
             return None

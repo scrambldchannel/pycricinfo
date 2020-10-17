@@ -35,17 +35,17 @@ class Player(object):
         self.timeout = timeout
 
     @cached_property
-    def html(self) -> BeautifulSoup:
+    def html(self) -> str:
 
         if self.html_file:
             with open(self.html_file, "r") as f:
-                return BeautifulSoup(f.read(), "html.parser")
+                return f.read()
         else:
             r = requests.get(self.url, timeout=self.timeout)
             if r.status_code == 404:
                 raise PyCricinfoException("Player.html", "404")
             else:
-                return BeautifulSoup(r.text, "html.parser")
+                return r.text
 
     @cached_property
     def json(self) -> dict:
@@ -62,8 +62,12 @@ class Player(object):
                 return r.json()
 
     @cached_property
+    def soup(self) -> BeautifulSoup:
+        return BeautifulSoup(self.html, "html.parser")
+
+    @cached_property
     def parsed_html(self) -> BeautifulSoup:
-        return self.html.find("div", class_="pnl490M")
+        return self.soup.find("div", class_="pnl490M")
 
     @cached_property
     def player_information(self) -> BeautifulSoup:
