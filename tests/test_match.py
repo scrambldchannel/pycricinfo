@@ -36,3 +36,13 @@ def test_match_from_file():
         m.description
         == "Indian Premier League, 48th Match: Mumbai Indians v Royal Challengers Bangalore at Abu Dhabi, Oct 28, 2020"
     )
+
+
+def test_embedded_json():
+
+    m = Match(1210428)
+
+    assert (
+        m.embedded_json["props"]["pageProps"]["data"]["meta"]["leagueName"]
+        == "Australia tour of Scotland"
+    )

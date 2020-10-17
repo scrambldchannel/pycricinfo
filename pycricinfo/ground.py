@@ -53,4 +53,4 @@ class Ground(object):
 
     @cached_property
     def soup(self) -> Soup:
-        return Soup(self.html, "html.parser")
+        return Soup(self.html)

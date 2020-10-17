@@ -1,3 +1,4 @@
+from .exceptions import PyCricinfoException
 from .ground import Ground
 from .match import Match
 from .player import Player
