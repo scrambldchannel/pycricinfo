@@ -122,15 +122,15 @@ class Match(object):
 
     @cached_property
     def team_1_id(self):
-        return self.get_team_1()["team_id"]
+        return self.team_1["team_id"]
 
     @cached_property
     def team_1_abbreviation(self):
-        return self.get_team_1()["team_abbreviation"]
+        return self.team_1["team_abbreviation"]
 
     @cached_property
     def team_1_players(self):
-        return self.get_team_1().get("player", [])
+        return self.team_1.get("player", [])
 
     @cached_property
     def team_1_innings(self):
@@ -149,15 +149,15 @@ class Match(object):
 
     @cached_property
     def team_2_id(self):
-        return self.get_team_2()["team_id"]
+        return self.team_2["team_id"]
 
     @cached_property
     def team_2_abbreviation(self):
-        return self.get_team_2()["team_abbreviation"]
+        return self.team_2["team_abbreviation"]
 
     @cached_property
     def team_2_players(self):
-        return self.get_team_2().get("player", [])
+        return self.team_2.get("player", [])
 
     @cached_property
     def team_2_innings(self):

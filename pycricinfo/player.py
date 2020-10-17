@@ -4,8 +4,8 @@ from functools import cached_property
 import requests
 from bs4 import BeautifulSoup
 
+from pycricinfo import Match
 from pycricinfo.exceptions import PyCricinfoException
-from pycricinfo.match import Match
 
 
 class Player(object):
@@ -43,7 +43,7 @@ class Player(object):
         else:
             r = requests.get(self.url, timeout=self.timeout)
             if r.status_code == 404:
-                raise PyCricinfoException
+                raise PyCricinfoException("Player.html", "404")
             else:
                 return BeautifulSoup(r.text, "html.parser")
 
@@ -67,9 +67,11 @@ class Player(object):
 
     @cached_property
     def player_information(self) -> BeautifulSoup:
-        return self.parsed_html.find_all("p", class_="ciPlayerinformationtxt")
+        # not sure this is working
+        return self.parsed_html.find("div", class_="ciPlayerinformationtxt")
 
-    def _batting_fielding_averages(self):
+    @cached_property
+    def batting_fielding_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
             headers = [
                 "matches",
@@ -105,7 +107,8 @@ class Player(object):
         else:
             return None
 
-    def _bowling_averages(self):
+    @cached_property
+    def bowling_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
             headers = [
                 "matches",
@@ -141,7 +144,6 @@ class Player(object):
             return None
 
     # below is great functionality but should be moved to the match object
-
     def batting_for_match(self, match_id):
         batting_stats = []
         m = Match(match_id)
