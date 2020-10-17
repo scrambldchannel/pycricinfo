@@ -1,5 +1,7 @@
 import requests
 
+from pycricinfo.exceptions import PyCricinfoException
+
 
 class Series(object):
     """
@@ -26,6 +28,7 @@ class Series(object):
 
         # parsing json
         if self.json:
+            # need to drill into what this is
             self.name = self.json["name"]
             self.short_name = self.json["shortName"]
             self.abbreviation = self.json["abbreviation"]
@@ -33,39 +36,12 @@ class Series(object):
             self.is_tournament = self.json["isTournament"]
             self.url = self.json["links"][0]["href"]
 
-    def get_json(self):
+    def get_json(self) -> dict:
 
         r = requests.get(self.json_url)
+        # proper exception handling needed
+
         if r.status_code == 404:
-            raise "Not Found"
+            raise PyCricinfoException
         else:
             return r.json()
-
-    # again, need to look into what is a series vs season
-    def get_events_for_season(self, season):
-        responses = []
-        season_events = []
-        season_events_url = self.seasons_url + "/{0}/events".format(str(season))
-        season_events_json = self.get_json(season_events_url)
-        if season_events_json:
-            rs = (requests.get(event["$ref"]) for event in season_events_json["items"])
-            responses = requests.map(rs)
-            for response in responses:
-                event_json = response.json()
-                venue_json = self.get_json(event_json["venues"][0]["$ref"])
-                season_events.append(
-                    {
-                        "url": event_json["$ref"],
-                        "match_id": event_json["id"],
-                        "class": event_json["competitions"][0]["class"][
-                            "generalClassCard"
-                        ],
-                        "date": event_json["date"],
-                        "description": event_json["shortDescription"],
-                        "venue_url": event_json["venues"][0]["$ref"],
-                        "venue": venue_json["fullName"],
-                    }
-                )
-            return season_events
-        else:
-            return None
