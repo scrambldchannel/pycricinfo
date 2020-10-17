@@ -1,4 +1,3 @@
-import json
 from functools import cached_property
 
 from gazpacho import Soup, get
@@ -23,15 +22,10 @@ class Ground(object):
             f"https://www.espncricinfo.com/ci/content/ground/{self.ground_id}.html"
         )
 
-        # this doesn't work
-        self.json_url = (
-            f"https://core.espnuk.org/v2/sports/cricket/ground/{self.ground_id}"
-        )
+        self.json_url = None
 
         self.html_file = html_file
         self.json_file = json_file
-
-        self.timeout = timeout
 
     @cached_property
     def html(self):
@@ -41,15 +35,6 @@ class Ground(object):
         else:
             r = get(self.url)
             return r
-
-    @cached_property
-    def json(self):
-
-        if self.json_file:
-            with open(self.json_file, "r") as f:
-                return json.loads(f.read())
-        else:
-            return get(self.json_url)
 
     @cached_property
     def soup(self) -> Soup:

@@ -15,7 +15,6 @@ class Series(object):
         series_id: int,
         html_file: Optional[str] = None,
         json_file: Optional[str] = None,
-        timeout: int = 5,
     ) -> None:
 
         self.series_id = series_id
@@ -28,8 +27,6 @@ class Series(object):
 
         self.html_file = html_file
         self.json_file = json_file
-
-        self.timeout = timeout
 
     @cached_property
     def html(self) -> str:

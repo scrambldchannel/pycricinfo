@@ -1,4 +1,3 @@
-import json
 from functools import cached_property
 
 from gazpacho import Soup, get
@@ -16,21 +15,13 @@ class Player(object):
         player_id: int,
         html_file: str = None,
         json_file: str = None,
-        timeout: int = 5,
     ) -> None:
 
         self.player_id = player_id
         self.url = f"https://www.espncricinfo.com/ci/content/player/{player_id}.html"
 
-        self.json_url = (
-            # not working / need to review url
-            f"https://core.espnuk.org/v2/sports/cricket/athletes/{player_id}"
-        )
-
         self.html_file = html_file
         self.json_file = json_file
-
-        self.timeout = timeout
 
     @cached_property
     def html(self) -> str:
@@ -43,18 +34,10 @@ class Player(object):
             return r
 
     @cached_property
-    def json(self) -> dict:
-
-        if self.json_file:
-            with open(self.json_file, "r") as f:
-                return json.loads(f.read())
-        else:
-            return get(self.json_url)
-
-    @cached_property
     def soup(self) -> Soup:
         return Soup(self.html)
 
+    # review this, just acts as an intermediary
     @cached_property
     def parsed_html(self) -> Soup:
         return self.soup.find("div", attrs={"class": "pnl490M"})
@@ -64,6 +47,7 @@ class Player(object):
         # not sure this is working
         return self.parsed_html.find("div", attrs={"class": "ciPlayerinformationtxt"})
 
+    # this will be broken and needing a test/review
     @cached_property
     def batting_fielding_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
@@ -101,6 +85,7 @@ class Player(object):
         else:
             return None
 
+    # this will be broken and needing a test/review
     @cached_property
     def bowling_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
@@ -137,6 +122,7 @@ class Player(object):
         else:
             return None
 
+    # this will be broken and needing a test/review
     # below is great functionality but should be moved to the match object
     def batting_for_match(self, match_id):
         batting_stats = []
@@ -202,6 +188,7 @@ class Player(object):
                 )
         return batting_stats
 
+    # this will be broken and needing a test/review
     def bowling_for_match(self, match_id):
         bowling_stats = []
         m = Match(match_id)

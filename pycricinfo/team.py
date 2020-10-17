@@ -17,22 +17,16 @@ class Team(object):
         team_id: int,
         html_file: str = None,
         json_file: str = None,
-        timeout: int = 5,
     ) -> None:
 
         self.team_id = team_id
 
         self.url = f"https://www.espncricinfo.com/team/_/id/{self.team_id}/"
 
-        # this doesn't work
-        self.json_url = (
-            f"https://core.espnuk.org/v2/sports/cricket/teams/{self.team_id}"
-        )
+        self.json_url = None
 
         self.html_file = html_file
         self.json_file = json_file
-
-        self.timeout = timeout
 
     @cached_property
     def html(self) -> str:
@@ -43,15 +37,6 @@ class Team(object):
         else:
             r = get(self.url)
             return r
-
-    @cached_property
-    def json(self) -> dict:
-
-        if self.json_file:
-            with open(self.json_file, "r") as f:
-                return json.loads(f.read())
-        else:
-            return get(self.json_url)
 
     @cached_property
     def soup(self) -> Soup:
