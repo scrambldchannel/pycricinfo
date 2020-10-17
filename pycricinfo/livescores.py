@@ -1,36 +1,48 @@
 import json
+from functools import cached_property
+from typing import Optional
 
-import requests
-from bs4 import BeautifulSoup
+from gazpacho import Soup, get
 
 from pycricinfo.exceptions import PyCricinfoException
 
 
-class Summary(object):
-    def __init__(self) -> None:
+class LiveScores(object):
+    """
+    Object used to scrape basic information about live games
+    """
+
+    def __init__(
+        self,
+        **kwargs,
+    ) -> None:
+
         self.url = "https://www.espncricinfo.com/scores"
-        self.html = self.get_html()
-        self.match_ids = self._match_ids()
 
-    def get_html(self):
-        r = requests.get(self.url)
-        if r.status_code == 404:
-            raise PyCricinfoException
-        else:
-            return BeautifulSoup(r.text, "html.parser")
+    @cached_property
+    def html(self):
+        r = get(self.url)
+        return r
 
-    def summary_json(self):
+    @cached_property
+    def soup(self):
+        return Soup(self.html)
+
+    @cached_property
+    def embedded_json(self) -> Optional[dict]:
         try:
-            text = self.html.find_all("script")[15].contents[0]
-            return json.loads(text)
+            json_text = self.soup.find("script", attrs={"id": "__NEXT_DATA__"}).text
+            return json.loads(json_text)
         except:
-            return None
+            raise PyCricinfoException(
+                "LiveScores.embedded_json", "Embedded JSON not found"
+            )
 
-    # replace this with
-    def _match_ids(self):
+    @cached_property
+    def get_live_matches(self):
         matches = [
             x["id"]
-            for x in self.summary_json()["props"]["pageProps"]["data"]["content"][
+            for x in self.embedded_json()["props"]["pageProps"]["data"]["content"][
                 "leagueEvents"
             ][0]["matchEvents"]
         ]
