@@ -69,7 +69,8 @@ class Player(object):
     def player_information(self) -> BeautifulSoup:
         return self.parsed_html.find_all("p", class_="ciPlayerinformationtxt")
 
-    def _batting_fielding_averages(self):
+    @cached_property
+    def batting_fielding_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
             headers = [
                 "matches",
@@ -105,7 +106,8 @@ class Player(object):
         else:
             return None
 
-    def _bowling_averages(self):
+    @cached_property
+    def bowling_averages(self):
         if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
             headers = [
                 "matches",
@@ -141,7 +143,6 @@ class Player(object):
             return None
 
     # below is great functionality but should be moved to the match object
-
     def batting_for_match(self, match_id):
         batting_stats = []
         m = Match(match_id)
