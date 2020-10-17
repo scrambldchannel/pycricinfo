@@ -75,9 +75,9 @@ class Match(object):
     def get_json(self) -> dict:
         r = requests.get(self.json_url)
         if r.status_code == 404:
-            raise PyCricinfoException
+            raise PyCricinfoException("Match.get_json", message="404")
         elif "Scorecard not yet available" in r.text:
-            raise PyCricinfoException
+            raise PyCricinfoException("Match.get_json", message="Not yet available")
         else:
             return r.json()
 
@@ -90,7 +90,7 @@ class Match(object):
     def get_html(self) -> BeautifulSoup:
         r = requests.get(self.match_url)
         if r.status_code == 404:
-            raise PyCricinfoException
+            raise PyCricinfoException("Match.get_html", "404")
         else:
             return BeautifulSoup(r.text, "html.parser")
 
@@ -102,7 +102,7 @@ class Match(object):
         try:
             text = self.html.find_all("script")[15].string
             return json.loads(text)
-        except:
+        except PyCricinfoException:
             return None
 
     def _espn_api_url(self) -> str:
