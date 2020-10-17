@@ -33,7 +33,9 @@ class LiveScores(object):
     @cached_property
     def embedded_json(self) -> dict:
         try:
-            json_text = self.soup.find("script", attrs={"id": "__NEXT_DATA__"}).text
+            json_text = self.soup.find(
+                "script", attrs={"id": "__NEXT_DATA__"}, mode="first"
+            ).text
             return json.loads(json_text)
         except:
             raise PyCricinfoException(
