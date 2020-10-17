@@ -1,10 +1,7 @@
 import json
 from functools import cached_property
 
-import requests
-from bs4 import BeautifulSoup
-
-from pycricinfo.exceptions import PyCricinfoException
+from gazpacho import Soup, get
 
 
 class Ground(object):
@@ -42,11 +39,8 @@ class Ground(object):
             with open(self.html_file, "r") as f:
                 return f.read
         else:
-            r = requests.get(self.url, timeout=self.timeout)
-            if r.status_code == 404:
-                raise PyCricinfoException("Ground.html", "404")
-            else:
-                return r.text
+            r = get(self.url)
+            return r
 
     @cached_property
     def json(self):
@@ -55,13 +49,8 @@ class Ground(object):
             with open(self.json_file, "r") as f:
                 return json.loads(f.read())
         else:
-            r = requests.get(self.json_url, timeout=self.timeout)
-            # need to do something to catch the timeout exception here
-            if r.status_code == 404:
-                raise PyCricinfoException("Team.json", "404")
-            else:
-                return r.json()
+            return get(self.json_url)
 
     @cached_property
-    def soup(self) -> BeautifulSoup:
-        return BeautifulSoup(self.html, "html.parser")
+    def soup(self) -> Soup:
+        return Soup(self.html, "html.parser")

@@ -2,10 +2,7 @@ import json
 from functools import cached_property
 from typing import List, Optional
 
-import requests
-from bs4 import BeautifulSoup
-
-from pycricinfo.exceptions import PyCricinfoException
+from gazpacho import Soup, get
 
 
 class Series(object):
@@ -41,11 +38,8 @@ class Series(object):
             with open(self.html_file, "r") as f:
                 return f.read()
         else:
-            r = requests.get(self.url, timeout=self.timeout)
-            if r.status_code == 404:
-                raise PyCricinfoException
-            else:
-                return r.text
+            r = get(self.url)
+            return r
 
     @cached_property
     def json(self) -> dict:
@@ -54,34 +48,27 @@ class Series(object):
             with open(self.json_file, "r") as f:
                 return json.loads(f.read())
         else:
-            r = requests.get(self.json_url, timeout=self.timeout)
-            # need to do something to catch the timeout exception here
-            if r.status_code == 404:
-                raise PyCricinfoException("Series.json", "404")
-            else:
-                return r.json()
+            return get(self.json_url)
 
     @cached_property
-    def soup(self) -> BeautifulSoup:
-        return BeautifulSoup(self.html, "html.parser")
+    def soup(self) -> Soup:
+        return Soup(self.html)
 
     @cached_property
     def seasons(self) -> List[int]:
-        r = requests.get(f"{self.json_url}seasons/", timeout=self.timeout)
+        r = get(f"{self.json_url}seasons/")
 
         seasons = []
-        for season in r.json().get("items"):
+        for season in r.get("items"):
             seasons.append(int(season.get("$ref", "").split("/")[-1]))
 
         return seasons
 
     def get_season_matches(self, season: int) -> List[int]:
-        r = requests.get(
-            f"{self.json_url}seasons/{season}/events/", timeout=self.timeout
-        )
+        r = get(f"{self.json_url}seasons/{season}/events/")
         matches = []
 
-        for m in r.json().get("items", []):
+        for m in r.get("items", []):
             matches.append(int(m.get("$ref", "").split("/")[-1]))
 
         return matches
