@@ -10,6 +10,10 @@ def test_player():
     assert p.full_name == "Dean Mervyn Jones"
     assert p.batting_style == "Right-hand bat"
     assert p.bowling_style == "Right-arm offbreak"
+    assert p.player_stats["batting"]["Tests"]["balls"] == "7427"
+    assert p.player_stats["batting"]["Tests"]["catches"] == "34"
+    assert p.player_stats["batting"]["Tests"]["matches"] == "52"
+    assert p.player_stats["batting"]["Tests"]["stumpings"] == "0"
 
 
 def test_player_from_file():
