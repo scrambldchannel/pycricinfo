@@ -23,11 +23,14 @@ m.description
 
 'Indian Premier League, 34th Match: Delhi Capitals v Chennai Super Kings at Sharjah, Oct 17, 2020'
 
-p = Player()
+p = Player(6044)
 p.name
 
 'Dean Jones'
 
+p.player_stats['batting']['Tests']
+
+{'matches played': '52', 'innings batted': '89', 'not outs': '11', 'runs scored': '3631', 'highest inns score': '216', 'batting average': '46.55', 'balls faced': '7427', 'batting strike rate': '48.88', 'hundreds scored': '11', 'fifties scored': '14', 'boundary fours': '361', 'boundary sixes': '10', 'catches taken': '34', 'stumpings made': '0'}
 
 ```
 
