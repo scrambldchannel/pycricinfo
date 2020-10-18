@@ -21,21 +21,20 @@ def test_ipl():
     )
 
 
-def test_match_from_file():
+def test_match_t_from_file():
 
-    html_file = Path(__file__).parent.joinpath(
-        "serialised_objects/match/", "1216499.html"
-    )
-    json_file = Path(__file__).parent.joinpath(
-        "serialised_objects/match/", "1216499.json"
-    )
+    m = Match(1216499)
+    m.to_files()
 
-    m = Match.from_files(html_file=html_file, json_file=json_file)
-    assert m.match_id == 1216499
-    assert (
-        m.description
-        == "Indian Premier League, 48th Match: Mumbai Indians v Royal Challengers Bangalore at Abu Dhabi, Oct 28, 2020"
-    )
+    m2 = Match.from_files(html_file="1216499.html", json_file="1216499.json")
+
+    assert m.match_id == m2.match_id
+    assert m.description == m2.description
+
+    p = Path("1216499.html")
+    p.unlink(missing_ok=True)
+    p = Path("1216499.json")
+    p.unlink(missing_ok=True)
 
 
 def test_embedded_json():
