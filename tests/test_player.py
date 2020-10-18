@@ -8,6 +8,8 @@ def test_player():
     assert p.player_id == 6044
     assert p.name == "Dean Jones"
     assert p.full_name == "Dean Mervyn Jones"
+    assert p.batting_style == "Right-hand bat"
+    assert p.bowling_style == "Right-arm offbreak"
 
 
 def test_player_from_file():
@@ -25,3 +27,5 @@ def test_player_from_file():
     assert isinstance(p.html, str)
     assert p.name == "Sir Viv Richards"
     assert p.full_name == "Isaac Vivian Alexander Richards"
+    assert p.batting_style == "Right-hand bat"
+    assert p.bowling_style == "Right-arm slow, Right-arm offbreak"

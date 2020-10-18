@@ -52,3 +52,19 @@ class Player(object):
                 return i.find("span", mode="first").text
 
         return None
+
+    @cached_property
+    def batting_style(self) -> Optional[str]:
+        for i in self.player_info_soup:
+            if i.find("b").text == "Batting style":
+                return i.find("span", mode="first").text
+
+        return None
+
+    @cached_property
+    def bowling_style(self) -> Optional[str]:
+        for i in self.player_info_soup:
+            if i.find("b").text == "Bowling style":
+                return i.find("span", mode="first").text
+
+        return None
