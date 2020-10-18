@@ -8,11 +8,11 @@ def test_ground():
     assert g.ground_id == 59269
 
 
-def test_ground_from_file():
+def test_ground_to_from_file():
+    g = Ground(57129)
+    g.to_file()
+    g2 = Ground.from_file(html_file="57129.html")
+    g.ground_id = g2.ground_id
 
-    html_file = Path(__file__).parent.joinpath(
-        "serialised_objects/ground/", "59269.html"
-    )
-
-    g = Ground(52812, html_file=html_file, json_file=None)
-    assert g.ground_id == 52812
+    p = Path("57129.html")
+    p.unlink(missing_ok=True)
