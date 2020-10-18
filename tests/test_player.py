@@ -29,3 +29,11 @@ def test_player_from_file():
     assert p.full_name == "Isaac Vivian Alexander Richards"
     assert p.batting_style == "Right-hand bat"
     assert p.bowling_style == "Right-arm slow, Right-arm offbreak"
+
+    assert p.player_stats["batting"]["Tests"]["hs"] == "291"
+
+
+def test_player_stats():
+    p = Player(7924)
+    assert p.player_stats["batting"]["Tests"]["hs"] == "334*"
+    assert p.player_stats["bowling"]["First-class"]["wickets"] == "2"
