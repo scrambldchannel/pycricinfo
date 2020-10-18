@@ -28,6 +28,14 @@ class Team(object):
         self.html_file = html_file
         self.json_file = json_file
 
+    def to_file(self, html_file: str = None) -> None:
+
+        if not html_file:
+            html_file = f"{self.team_id}.html"
+
+        with open(html_file, "w") as f:
+            f.write(self.html)
+
     @cached_property
     def html(self) -> str:
 
