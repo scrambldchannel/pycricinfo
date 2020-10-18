@@ -9,13 +9,15 @@ def test_team():
     assert t.html is not None
 
 
-def test_team_from_file():
+def test_team_to_from_file():
 
-    html_file = Path(__file__).parent.joinpath("serialised_objects/team/", "387.html")
+    t = Team(387)
+    t.to_file()
 
-    # json not available
-    json_file = None
+    t2 = Team.from_file("387.html")
 
-    t = Team(387, html_file=html_file, json_file=json_file)
-    assert t.team_id == 387
-    assert t.html is not None
+    assert t.team_id == t2.team_id
+    assert t2.html is not None
+
+    p = Path("387.html")
+    p.unlink(missing_ok=True)
