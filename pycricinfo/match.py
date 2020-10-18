@@ -30,6 +30,19 @@ class Match(object):
         self.html_file = html_file
         self.json_file = json_file
 
+    @classmethod
+    def from_files(cls, html_file: str, json_file: str):
+        with open(html_file, "r") as f:
+            # get match_id
+            soup = Soup(f.read())
+            match_id = int(
+                soup.find("link", attrs={"rel": "canonical"})
+                .attrs["href"]
+                .split("/")[6]
+            )
+
+        return cls(match_id=match_id, html_file=html_file, json_file=json_file)
+
     @cached_property
     def html(self) -> str:
 

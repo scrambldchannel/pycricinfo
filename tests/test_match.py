@@ -30,7 +30,7 @@ def test_match_from_file():
         "serialised_objects/match/", "1216499.json"
     )
 
-    m = Match(1216499, html_file=html_file, json_file=json_file)
+    m = Match.from_files(html_file=html_file, json_file=json_file)
     assert m.match_id == 1216499
     assert (
         m.description
