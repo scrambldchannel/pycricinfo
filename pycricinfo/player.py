@@ -84,58 +84,64 @@ class Player(object):
         etables = self.soup.find("table", attrs={"class": "engineTable"}, mode="all")
 
         if len(etables) >= 2:
-            batting = {}
+
             # this will hopefully be batting
-            for tr in etables[0].find("tr", attrs={"class": "data1"}, mode="all"):
+            batting_table = etables[0]
+            batting = {}
+            header_columns = []
+            for th in (
+                batting_table.find("thead", mode="first")
+                .find("tr", mode="first")
+                .find("th", mode="all")
+            ):
+                header_columns.append(th.attrs["title"])
 
-                for td in tr.find("td", attrs={"title": "record rank:"}, mode="all"):
-                    grade = td.find("b", mode="first").text
+            for tr in batting_table.find("tbody", mode="first").find("tr", mode="all"):
 
-                    grade_stats = {}
-                    stat_list = tr.find("td", attrs={"nowrap": "nowrap"}, mode="all")
-                    # assuming this order is fixed
-                    grade_stats["matches"] = stat_list[1].text
-                    grade_stats["innings"] = stat_list[2].text
-                    grade_stats["not out"] = stat_list[3].text
-                    grade_stats["runs"] = stat_list[4].text
-                    grade_stats["hs"] = stat_list[5].text
-                    grade_stats["average"] = stat_list[6].text
-                    grade_stats["sr"] = stat_list[7].text
-                    grade_stats["balls"] = stat_list[8].text
-                    grade_stats["100s"] = stat_list[9].text
-                    grade_stats["50s"] = stat_list[10].text
-                    grade_stats["6s"] = stat_list[11].text
-                    grade_stats["catches"] = stat_list[12].text
-                    grade_stats["stumpings"] = stat_list[13].text
+                grade_stats = {}
 
-                    batting[grade] = grade_stats
+                stat_columns = tr.find("td", mode="all")
+
+                grade = stat_columns[0].text
+
+                for index, col in enumerate(stat_columns[1:]):
+
+                    grade_stats[header_columns[index + 1]] = stat_columns[
+                        index + 1
+                    ].text
+
+                batting[grade] = grade_stats
 
             stats["batting"] = batting
 
+            bowling_table = etables[1]
+
             bowling = {}
-            # this will hopefully be bowling
-            for tr in etables[1].find("tr", attrs={"class": "data1"}, mode="all"):
 
-                for td in tr.find("td", attrs={"title": "record rank:"}, mode="all"):
-                    grade = td.find("b", mode="first").text
-                    grade_stats = {}
-                    stat_list = tr.find("td", attrs={"nowrap": "nowrap"}, mode="all")
-                    # assuming this order is fixed
-                    grade_stats["matches"] = stat_list[1].text
-                    grade_stats["innings"] = stat_list[2].text
-                    grade_stats["balls"] = stat_list[3].text
-                    grade_stats["runs"] = stat_list[4].text
-                    grade_stats["wickets"] = stat_list[5].text
-                    grade_stats["best innings"] = stat_list[6].text
-                    grade_stats["best match"] = stat_list[7].text
-                    grade_stats["average"] = stat_list[8].text
-                    grade_stats["er"] = stat_list[9].text
-                    grade_stats["6s"] = stat_list[10].text
-                    grade_stats["4s"] = stat_list[11].text
-                    grade_stats["5s"] = stat_list[12].text
-                    grade_stats["10s"] = stat_list[13].text
+            header_columns = []
+            for th in (
+                bowling_table.find("thead", mode="first")
+                .find("tr", mode="first")
+                .find("th", mode="all")
+            ):
+                header_columns.append(th.attrs["title"])
 
-                    bowling[grade] = grade_stats
+            for tr in bowling_table.find("tbody", mode="first").find("tr", mode="all"):
+
+                grade_stats = {}
+
+                stat_columns = tr.find("td", mode="all")
+
+                grade = stat_columns[0].text
+
+                for index, col in enumerate(stat_columns[1:]):
+
+                    grade_stats[header_columns[index + 1]] = stat_columns[
+                        index + 1
+                    ].text
+
+                bowling[grade] = grade_stats
+
             stats["bowling"] = bowling
 
         return stats
