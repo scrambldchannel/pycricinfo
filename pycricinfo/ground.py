@@ -33,7 +33,7 @@ class Ground(object):
             html_file = f"{self.ground_id}.html"
 
         with open(html_file, "w") as f:
-            f.write(self.html)
+            f.write(self.soup.html)
 
     @cached_property
     def html(self):

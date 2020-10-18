@@ -28,7 +28,7 @@ class Player(object):
             html_file = f"{self.player_id}.html"
 
         with open(html_file, "w") as f:
-            f.write(self.html)
+            f.write(self.soup.html)
 
     @cached_property
     def html(self) -> str:
