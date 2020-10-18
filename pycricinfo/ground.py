@@ -13,7 +13,6 @@ class Ground(object):
         ground_id: int,
         html_file: str = None,
         json_file: str = None,
-        timeout: int = 5,
     ) -> None:
 
         self.ground_id = ground_id
