@@ -1,8 +1,7 @@
 from functools import cached_property
+from typing import Optional
 
 from gazpacho import Soup, get
-
-from pycricinfo import Match
 
 
 class Player(object):
@@ -37,239 +36,35 @@ class Player(object):
     def soup(self) -> Soup:
         return Soup(self.html)
 
-    # review this, just acts as an intermediary
     @cached_property
-    def parsed_html(self) -> Soup:
-        return self.soup.find("div", attrs={"class": "pnl490M"}, mode="first")
+    def player_info_soup(self) -> Soup:
+        return self.soup.find("p", attrs={"class": "ciPlayerinformationtxt"})
 
     @cached_property
-    def player_information(self) -> Soup:
-        # not sure this is working
-        return self.parsed_html.find(
-            "div", attrs={"class": "ciPlayerinformationtxt"}, mode="first"
-        )
+    def name(self) -> Soup:
+        info = self.soup.find("div", attrs={"class": "ciPlayernametxt"}, mode="first")
+        return info.find("h1", mode="first").text
 
-    # this will be broken and needing a test/review
     @cached_property
-    def batting_fielding_averages(self):
-        if len(self.parsed_html.find("table", attrs={"class": "engineTable"})) != 4:
-            return None
-        headers = [
-            "matches",
-            "innings",
-            "not_out",
-            "runs",
-            "high_score",
-            "batting_average",
-            "balls_faced",
-            "strike_rate",
-            "centuries",
-            "fifties",
-            "fours",
-            "sixes",
-            "catches",
-            "stumpings",
-        ]
-        bat_field = [
-            td.text.strip()
-            for td in self.parsed_html.find("table", class_="engineTable").findAll("td")
-        ]
-        num_formats = int(len(bat_field) / 15)
-        format_positions = [15 * x for x in range(num_formats)]
-        formats = [bat_field[x] for x in format_positions]
-        avg_starts = [x + 1 for x in format_positions[:num_formats]]
-        avg_finish = [x + 14 for x in avg_starts]
-        format_averages = [bat_field[x:y] for x, y in zip(avg_starts, avg_finish)]
-        combined = list(zip(formats, format_averages))
-        l_not_ambiguous = [{x: dict(zip(headers, y))} for x, y in combined]
-        return {k: v for d in l_not_ambiguous for k, v in d.items()}
+    def full_name(self) -> Optional[str]:
+        for i in self.player_info_soup:
+            if i.find("b").text == "Full name":
+                return i.find("span", mode="first").text
 
-    # this will be broken and needing a test/review
+        return None
+
     @cached_property
-    def bowling_averages(self):
-        if len(self.parsed_html.find("table", attrs={"class": "engineTable"})) != 4:
-            return None
-        headers = [
-            "matches",
-            "innings",
-            "balls_delivered",
-            "runs",
-            "wickets",
-            "best_innings",
-            "best_match",
-            "bowling_average",
-            "economy",
-            "strike_rate",
-            "four_wickets",
-            "five_wickets",
-            "ten_wickets",
-        ]
-        bowling = [
-            td.text.strip()
-            for td in self.parsed_html.findAll("table", class_="engineTable")[
-                1
-            ].findAll("td")
-        ]
-        num_formats = int(len(bowling) / 14)
-        format_positions = [14 * x for x in range(num_formats)]
-        formats = [bowling[x] for x in format_positions]
-        avg_starts = [x + 1 for x in format_positions[:num_formats]]
-        avg_finish = [x + 13 for x in avg_starts]
-        format_averages = [bowling[x:y] for x, y in zip(avg_starts, avg_finish)]
-        combined = list(zip(formats, format_averages))
-        l_not_ambiguous = [{x: dict(zip(headers, y))} for x, y in combined]
-        return {k: v for d in l_not_ambiguous for k, v in d.items()}
+    def batting_style(self) -> Optional[str]:
+        for i in self.player_info_soup:
+            if i.find("b").text == "Batting style":
+                return i.find("span", mode="first").text
 
-    # this will be broken and needing a test/review
-    # below is great functionality but should be moved to the match object
-    def batting_for_match(self, match_id):
-        batting_stats = []
-        m = Match(match_id)
-        for innings in list(m.full_scorecard["innings"].keys()):
-            stats = next(
-                (
-                    x
-                    for x in m.full_scorecard["innings"][innings]["batsmen"]
-                    if x["href"] == self.url
-                ),
-                None,
-            )
-            if stats:
-                batting_stats.append(
-                    {
-                        "innings": innings,
-                        "balls_faced": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "ballsFaced"
-                            ),
-                            None,
-                        ),
-                        "minutes": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "minutes"
-                            ),
-                            None,
-                        ),
-                        "runs": next(
-                            (x["value"] for x in stats["stats"] if x["name"] == "runs"),
-                            None,
-                        ),
-                        "fours": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "fours"
-                            ),
-                            None,
-                        ),
-                        "sixes": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "sixes"
-                            ),
-                            None,
-                        ),
-                        "strike_rate": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "strikeRate"
-                            ),
-                            None,
-                        ),
-                    }
-                )
-        return batting_stats
+        return None
 
-    # this will be broken and needing a test/review
-    def bowling_for_match(self, match_id):
-        bowling_stats = []
-        m = Match(match_id)
-        for innings in list(m.full_scorecard["innings"].keys()):
-            stats = next(
-                (
-                    x
-                    for x in m.full_scorecard["innings"][innings]["bowlers"]
-                    if x["href"] == self.url
-                ),
-                None,
-            )
-            if stats:
-                bowling_stats.append(
-                    {
-                        "innings": innings,
-                        "overs": next(
-                            (x["value"] for x in stats["stats"] if x["name"] == "overs")
-                        ),
-                        "maidens": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "maidens"
-                            )
-                        ),
-                        "conceded": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "conceded"
-                            )
-                        ),
-                        "wickets": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "wickets"
-                            )
-                        ),
-                        "economy_rate": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "economyRate"
-                            )
-                        ),
-                        "dots": next(
-                            (x["value"] for x in stats["stats"] if x["name"] == "dots"),
-                            None,
-                        ),
-                        "fours_conceded": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "foursConceded"
-                            ),
-                            None,
-                        ),
-                        "sixes_conceded": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "sixesConceded"
-                            ),
-                            None,
-                        ),
-                        "wides": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "wides"
-                            ),
-                            None,
-                        ),
-                        "no_balls": next(
-                            (
-                                x["value"]
-                                for x in stats["stats"]
-                                if x["name"] == "noballs"
-                            ),
-                            None,
-                        ),
-                    }
-                )
-        return bowling_stats
+    @cached_property
+    def bowling_style(self) -> Optional[str]:
+        for i in self.player_info_soup:
+            if i.find("b").text == "Bowling style":
+                return i.find("span", mode="first").text
+
+        return None
