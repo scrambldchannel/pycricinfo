@@ -28,6 +28,19 @@ class Series(object):
         self.html_file = html_file
         self.json_file = json_file
 
+    @classmethod
+    def from_files(cls, html_file: str, json_file: str):
+        with open(html_file, "r") as f:
+            # get series_id
+            soup = Soup(f.read())
+            series_id = int(
+                soup.find("link", attrs={"rel": "canonical"})
+                .attrs["href"]
+                .split("/")[6]
+            )
+
+        return cls(series_id=series_id, html_file=html_file, json_file=json_file)
+
     def to_files(self, html_file: str = None, json_file: str = None) -> None:
 
         if not html_file:
