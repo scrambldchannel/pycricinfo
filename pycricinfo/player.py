@@ -40,87 +40,85 @@ class Player(object):
     # review this, just acts as an intermediary
     @cached_property
     def parsed_html(self) -> Soup:
-        return self.soup.find("div", attrs={"class": "pnl490M"})
+        return self.soup.find("div", attrs={"class": "pnl490M"}, mode="first")
 
     @cached_property
     def player_information(self) -> Soup:
         # not sure this is working
-        return self.parsed_html.find("div", attrs={"class": "ciPlayerinformationtxt"})
+        return self.parsed_html.find(
+            "div", attrs={"class": "ciPlayerinformationtxt"}, mode="first"
+        )
 
     # this will be broken and needing a test/review
     @cached_property
     def batting_fielding_averages(self):
-        if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
-            headers = [
-                "matches",
-                "innings",
-                "not_out",
-                "runs",
-                "high_score",
-                "batting_average",
-                "balls_faced",
-                "strike_rate",
-                "centuries",
-                "fifties",
-                "fours",
-                "sixes",
-                "catches",
-                "stumpings",
-            ]
-            bat_field = [
-                td.text.strip()
-                for td in self.parsed_html.find("table", class_="engineTable").findAll(
-                    "td"
-                )
-            ]
-            num_formats = int(len(bat_field) / 15)
-            format_positions = [15 * x for x in range(num_formats)]
-            formats = [bat_field[x] for x in format_positions]
-            avg_starts = [x + 1 for x in format_positions[:num_formats]]
-            avg_finish = [x + 14 for x in avg_starts]
-            format_averages = [bat_field[x:y] for x, y in zip(avg_starts, avg_finish)]
-            combined = list(zip(formats, format_averages))
-            l_not_ambiguous = [{x: dict(zip(headers, y))} for x, y in combined]
-            return {k: v for d in l_not_ambiguous for k, v in d.items()}
-        else:
+        if len(self.parsed_html.find("table", attrs={"class": "engineTable"})) != 4:
             return None
+        headers = [
+            "matches",
+            "innings",
+            "not_out",
+            "runs",
+            "high_score",
+            "batting_average",
+            "balls_faced",
+            "strike_rate",
+            "centuries",
+            "fifties",
+            "fours",
+            "sixes",
+            "catches",
+            "stumpings",
+        ]
+        bat_field = [
+            td.text.strip()
+            for td in self.parsed_html.find("table", class_="engineTable").findAll("td")
+        ]
+        num_formats = int(len(bat_field) / 15)
+        format_positions = [15 * x for x in range(num_formats)]
+        formats = [bat_field[x] for x in format_positions]
+        avg_starts = [x + 1 for x in format_positions[:num_formats]]
+        avg_finish = [x + 14 for x in avg_starts]
+        format_averages = [bat_field[x:y] for x, y in zip(avg_starts, avg_finish)]
+        combined = list(zip(formats, format_averages))
+        l_not_ambiguous = [{x: dict(zip(headers, y))} for x, y in combined]
+        return {k: v for d in l_not_ambiguous for k, v in d.items()}
 
     # this will be broken and needing a test/review
     @cached_property
     def bowling_averages(self):
-        if len(self.parsed_html.findAll("table", class_="engineTable")) == 4:
-            headers = [
-                "matches",
-                "innings",
-                "balls_delivered",
-                "runs",
-                "wickets",
-                "best_innings",
-                "best_match",
-                "bowling_average",
-                "economy",
-                "strike_rate",
-                "four_wickets",
-                "five_wickets",
-                "ten_wickets",
-            ]
-            bowling = [
-                td.text.strip()
-                for td in self.parsed_html.findAll("table", class_="engineTable")[
-                    1
-                ].findAll("td")
-            ]
-            num_formats = int(len(bowling) / 14)
-            format_positions = [14 * x for x in range(num_formats)]
-            formats = [bowling[x] for x in format_positions]
-            avg_starts = [x + 1 for x in format_positions[:num_formats]]
-            avg_finish = [x + 13 for x in avg_starts]
-            format_averages = [bowling[x:y] for x, y in zip(avg_starts, avg_finish)]
-            combined = list(zip(formats, format_averages))
-            l_not_ambiguous = [{x: dict(zip(headers, y))} for x, y in combined]
-            return {k: v for d in l_not_ambiguous for k, v in d.items()}
-        else:
+        if len(self.parsed_html.find("table", attrs={"class": "engineTable"})) != 4:
             return None
+        headers = [
+            "matches",
+            "innings",
+            "balls_delivered",
+            "runs",
+            "wickets",
+            "best_innings",
+            "best_match",
+            "bowling_average",
+            "economy",
+            "strike_rate",
+            "four_wickets",
+            "five_wickets",
+            "ten_wickets",
+        ]
+        bowling = [
+            td.text.strip()
+            for td in self.parsed_html.findAll("table", class_="engineTable")[
+                1
+            ].findAll("td")
+        ]
+        num_formats = int(len(bowling) / 14)
+        format_positions = [14 * x for x in range(num_formats)]
+        formats = [bowling[x] for x in format_positions]
+        avg_starts = [x + 1 for x in format_positions[:num_formats]]
+        avg_finish = [x + 13 for x in avg_starts]
+        format_averages = [bowling[x:y] for x, y in zip(avg_starts, avg_finish)]
+        combined = list(zip(formats, format_averages))
+        l_not_ambiguous = [{x: dict(zip(headers, y))} for x, y in combined]
+        return {k: v for d in l_not_ambiguous for k, v in d.items()}
 
     # this will be broken and needing a test/review
     # below is great functionality but should be moved to the match object
