@@ -43,6 +43,18 @@ class Match(object):
 
         return cls(match_id=match_id, html_file=html_file, json_file=json_file)
 
+    def to_files(self, html_file: str = None, json_file: str = None) -> None:
+
+        if not html_file:
+            html_file = f"{self.match_id}.html"
+        if not json_file:
+            json_file = f"{self.match_id}.json"
+
+        with open(html_file, "w") as f:
+            f.write(self.html)
+        with open(json_file, "w") as f:
+            f.write(json.dumps(self.json, indent=4))
+
     @cached_property
     def html(self) -> str:
 
