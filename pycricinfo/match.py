@@ -51,7 +51,7 @@ class Match(object):
             json_file = f"{self.match_id}.json"
 
         with open(html_file, "w") as f:
-            f.write(self.html)
+            f.write(self.soup.html)
         with open(json_file, "w") as f:
             f.write(json.dumps(self.json, indent=4))
 

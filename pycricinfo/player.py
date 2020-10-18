@@ -22,13 +22,27 @@ class Player(object):
         self.html_file = html_file
         self.json_file = json_file
 
+    @classmethod
+    def from_file(cls, html_file: str):
+        with open(html_file, "r") as f:
+            # get player_id
+            soup = Soup(f.read())
+            player_id = int(
+                soup.find("link", attrs={"rel": "canonical"})
+                .attrs["href"]
+                .split("/")[6]
+                .split(".")[0]
+            )
+
+        return cls(player_id=player_id, html_file=html_file)
+
     def to_file(self, html_file: str = None) -> None:
 
         if not html_file:
             html_file = f"{self.player_id}.html"
 
         with open(html_file, "w") as f:
-            f.write(self.html)
+            f.write(self.soup.html)
 
     @cached_property
     def html(self) -> str:

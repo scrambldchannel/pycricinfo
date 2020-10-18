@@ -13,7 +13,6 @@ class Ground(object):
         ground_id: int,
         html_file: str = None,
         json_file: str = None,
-        timeout: int = 5,
     ) -> None:
 
         self.ground_id = ground_id
@@ -27,13 +26,27 @@ class Ground(object):
         self.html_file = html_file
         self.json_file = json_file
 
+    @classmethod
+    def from_file(cls, html_file: str):
+        with open(html_file, "r") as f:
+            # get player_id
+            soup = Soup(f.read())
+            ground_id = int(
+                soup.find("link", attrs={"rel": "canonical"})
+                .attrs["href"]
+                .split("/")[6]
+                .split(".")[0]
+            )
+
+        return cls(ground_id=ground_id, html_file=html_file)
+
     def to_file(self, html_file: str = None) -> None:
 
         if not html_file:
             html_file = f"{self.ground_id}.html"
 
         with open(html_file, "w") as f:
-            f.write(self.html)
+            f.write(self.soup.html)
 
     @cached_property
     def html(self):
