@@ -7,6 +7,7 @@ def test_player():
     p = Player(6044)
     assert p.player_id == 6044
     assert p.name == "Dean Jones"
+    assert p.full_name == "Dean Mervyn Jones"
 
 
 def test_player_from_file():
@@ -23,3 +24,4 @@ def test_player_from_file():
     assert len(p.html) > 0
     assert isinstance(p.html, str)
     assert p.name == "Sir Viv Richards"
+    assert p.full_name == "Isaac Vivian Alexander Richards"

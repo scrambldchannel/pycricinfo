@@ -1,4 +1,5 @@
 from functools import cached_property
+from typing import Optional
 
 from gazpacho import Soup, get
 
@@ -36,15 +37,18 @@ class Player(object):
         return Soup(self.html)
 
     @cached_property
-    def full_name(self) -> Soup:
-        player_info = self.soup.find(
-            "p", attrs={"class": "ciPlayerinformationtxt"}, mode="first"
-        )
-
-        return player_info.find("span", mode="first").text
+    def player_info_soup(self) -> Soup:
+        return self.soup.find("p", attrs={"class": "ciPlayerinformationtxt"})
 
     @cached_property
     def name(self) -> Soup:
         info = self.soup.find("div", attrs={"class": "ciPlayernametxt"}, mode="first")
-
         return info.find("h1", mode="first").text
+
+    @cached_property
+    def full_name(self) -> Optional[str]:
+        for i in self.player_info_soup:
+            if i.find("b").text == "Full name":
+                return i.find("span", mode="first").text
+
+        return None
