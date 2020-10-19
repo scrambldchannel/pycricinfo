@@ -1,6 +1,9 @@
 from functools import cached_property
 
 from gazpacho import Soup, get
+from gazpacho.utils import HTTPError
+
+from pycricinfo.exceptions import PageNotFoundException
 
 
 class BaseCricinfoPage:
@@ -26,7 +29,15 @@ class BaseCricinfoPage:
             with open(self.html_file, "r") as f:
                 return f.read()
         else:
-            return get(self.url)
+            try:
+                return get(self.url)
+            except HTTPError as e:
+                if e.code == 404:
+                    raise PageNotFoundException(
+                        e.code,
+                        f"Object {self.id} not found. Check that the id is correct.",
+                    )
+                return ""
 
     @cached_property
     def soup(self) -> Soup:

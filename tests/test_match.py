@@ -7,7 +7,7 @@ from pycricinfo import Match, PageNotFoundException
 
 def test_test_match():
     m = Match(63438)
-    assert m.match_id == 63438
+    assert m.id == 63438
     assert (
         m.description
         == "Australia tour of India, 1st Test: India v Australia at Chennai, Sep 18-22, 1986"
@@ -16,7 +16,7 @@ def test_test_match():
 
 def test_ipl():
     m = Match(734043)
-    assert m.match_id == 734043
+    assert m.id == 734043
     assert (
         m.description
         == "Pepsi Indian Premier League, Qualifier 1: Kings XI Punjab v Kolkata Knight Riders at Kolkata, May 27-28, 2014"
@@ -30,7 +30,7 @@ def test_match_t_from_file():
 
     m2 = Match.from_files(html_file="1216499.html", json_file="1216499.json")
 
-    assert m.match_id == m2.match_id
+    assert m.id == m2.id
     assert m.description == m2.description
 
     p = Path("1216499.html")
