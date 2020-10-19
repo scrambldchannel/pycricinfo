@@ -54,3 +54,10 @@ def test_missing_match():
     with pytest.raises(PageNotFoundException):
         m = Match(123)
         print(m.html)
+
+
+def test_no_embedded_json():
+
+    with pytest.warns(RuntimeWarning):
+        m = Match(123)
+        print(m.embedded_json)
