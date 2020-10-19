@@ -4,8 +4,6 @@ from typing import List
 
 from gazpacho import Soup, get
 
-from pycricinfo.exceptions import PyCricinfoException
-
 
 class LiveScores(object):
     """
@@ -37,10 +35,8 @@ class LiveScores(object):
                 "script", attrs={"id": "__NEXT_DATA__"}, mode="first"
             ).text
             return json.loads(json_text)
-        except:
-            raise PyCricinfoException(
-                "LiveScores.embedded_json", "Embedded JSON not found"
-            )
+        except Exception:
+            raise RuntimeWarning("Unable to obtain embedded JSON in live scores page")
 
     @cached_property
     def live_matches(self) -> List[int]:
