@@ -2,62 +2,44 @@ import warnings
 from functools import cached_property
 from typing import Optional
 
-from gazpacho import Soup, get
+from gazpacho import Soup
+
+from pycricinfo.base import BaseCricinfoPage
 
 
-class Player(object):
+class Player(BaseCricinfoPage):
     """
     Abstraction of a player
     """
 
     def __init__(
         self,
-        player_id: int,
+        id: int,
         html_file: str = None,
         json_file: str = None,
     ) -> None:
 
-        self.player_id = player_id
-        self.url = f"https://www.espncricinfo.com/ci/content/player/{player_id}.html"
+        self.id = id
+        self.url = f"https://www.espncricinfo.com/ci/content/player/{id}.html"
 
         self.html_file = html_file
-        self.json_file = json_file
+
+        # no json located for players
+        self.json_file = None
+        self.json = None
 
     @classmethod
     def from_file(cls, html_file: str):
         with open(html_file, "r") as f:
-            # get player_id
+            # get player id
             soup = Soup(f.read())
-            player_id = int(
+            id = int(
                 soup.find("link", attrs={"rel": "canonical"})
                 .attrs["href"]
                 .split("/")[6]
                 .split(".")[0]
             )
-
-        return cls(player_id=player_id, html_file=html_file)
-
-    def to_file(self, html_file: str = None) -> None:
-
-        if not html_file:
-            html_file = f"{self.player_id}.html"
-
-        with open(html_file, "w") as f:
-            f.write(self.soup.html)
-
-    @cached_property
-    def html(self) -> str:
-
-        if self.html_file:
-            with open(self.html_file, "r") as f:
-                return f.read()
-        else:
-            r = get(self.url)
-            return r
-
-    @cached_property
-    def soup(self) -> Soup:
-        return Soup(self.html)
+        return cls(id=id, html_file=html_file)
 
     @cached_property
     def player_info_soup(self) -> Soup:
@@ -73,7 +55,6 @@ class Player(object):
         for i in self.player_info_soup:
             if i.find("b").text == "Full name":
                 return i.find("span", mode="first").text
-
         return None
 
     @cached_property
@@ -81,7 +62,6 @@ class Player(object):
         for i in self.player_info_soup:
             if i.find("b").text == "Batting style":
                 return i.find("span", mode="first").text
-
         return None
 
     @cached_property
@@ -89,7 +69,6 @@ class Player(object):
         for i in self.player_info_soup:
             if i.find("b").text == "Bowling style":
                 return i.find("span", mode="first").text
-
         return None
 
     @cached_property
