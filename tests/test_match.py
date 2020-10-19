@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from pycricinfo import Match
+import pytest
+
+from pycricinfo import Match, PageNotFoundException
 
 
 def test_test_match():
@@ -45,3 +47,10 @@ def test_embedded_json():
         m.embedded_json["props"]["pageProps"]["data"]["meta"]["leagueName"]
         == "Australia tour of Scotland"
     )
+
+
+def test_missing_match():
+
+    with pytest.raises(PageNotFoundException):
+        m = Match(123)
+        print(m.html)
