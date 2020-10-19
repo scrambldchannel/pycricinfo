@@ -16,17 +16,12 @@ class Player(BaseCricinfoPage):
         self,
         id: int,
         html_file: str = None,
-        json_file: str = None,
     ) -> None:
 
         self.id = id
         self.url = f"https://www.espncricinfo.com/ci/content/player/{id}.html"
 
         self.html_file = html_file
-
-        # no json located for players
-        self.json_file = None
-        self.json = None
 
     @classmethod
     def from_file(cls, html_file: str):

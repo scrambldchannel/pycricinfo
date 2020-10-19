@@ -12,6 +12,7 @@ class BaseCricinfoPage:
         self.id = id
 
         self.url = None
+        self.json_url = None
         self.html = None
         self.json = None
         self.html_file = None

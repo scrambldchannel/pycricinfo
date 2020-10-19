@@ -2,28 +2,28 @@ import json
 from functools import cached_property
 from typing import List, Optional
 
-from gazpacho import Soup, get
+from gazpacho import Soup
+
+from pycricinfo.base import BaseCricinfoPage, get
 
 
-class Series(object):
+class Series(BaseCricinfoPage):
     """
     Abstraction of a series
     """
 
     def __init__(
         self,
-        series_id: int,
+        id: int,
         html_file: Optional[str] = None,
         json_file: Optional[str] = None,
     ) -> None:
 
-        self.series_id = series_id
+        self.id = id
 
-        self.url = f"https://www.espncricinfo.com/series/_/id/{self.series_id}/"
+        self.url = f"https://www.espncricinfo.com/series/_/id/{self.id}/"
 
-        self.json_url = (
-            f"http://core.espnuk.org/v2/sports/cricket/leagues/{self.series_id}/"
-        )
+        self.json_url = f"http://core.espnuk.org/v2/sports/cricket/leagues/{self.id}/"
 
         self.html_file = html_file
         self.json_file = json_file
@@ -33,35 +33,25 @@ class Series(object):
         with open(html_file, "r") as f:
             # get series_id
             soup = Soup(f.read())
-            series_id = int(
+            id = int(
                 soup.find("link", attrs={"rel": "canonical"})
                 .attrs["href"]
                 .split("/")[6]
             )
 
-        return cls(series_id=series_id, html_file=html_file, json_file=json_file)
+        return cls(id=id, html_file=html_file, json_file=json_file)
 
     def to_files(self, html_file: str = None, json_file: str = None) -> None:
 
         if not html_file:
-            html_file = f"{self.series_id}.html"
+            html_file = f"{self.id}.html"
         if not json_file:
-            json_file = f"{self.series_id}.json"
+            json_file = f"{self.id}.json"
 
         with open(html_file, "w") as f:
             f.write(self.soup.html)
         with open(json_file, "w") as f:
             f.write(json.dumps(self.json, indent=4))
-
-    @cached_property
-    def html(self) -> str:
-
-        if self.html_file:
-            with open(self.html_file, "r") as f:
-                return f.read()
-        else:
-            r = get(self.url)
-            return r
 
     @cached_property
     def json(self) -> dict:
@@ -72,10 +62,7 @@ class Series(object):
         else:
             return get(self.json_url)
 
-    @cached_property
-    def soup(self) -> Soup:
-        return Soup(self.html)
-
+    # need to think about whether these belong here or somewhere else
     @cached_property
     def seasons(self) -> List[int]:
         r = get(f"{self.json_url}seasons/")
@@ -118,7 +105,3 @@ class Series(object):
     @cached_property
     def abbreviation(self) -> Optional[str]:
         return self.json.get("abbreviation")
-
-    @cached_property
-    def slug(self) -> Optional[str]:
-        return self.json.get("slug")

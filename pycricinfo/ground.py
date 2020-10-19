@@ -12,18 +12,13 @@ class Ground(BaseCricinfoPage):
         self,
         id: int,
         html_file: str = None,
-        json_file: str = None,
     ) -> None:
 
         self.id = id
 
         self.url = f"https://www.espncricinfo.com/ci/content/ground/{self.id}.html"
 
-        self.json_url = None
-        self.json = None
-
         self.html_file = html_file
-        self.json_file = json_file
 
     @classmethod
     def from_file(cls, html_file: str):
