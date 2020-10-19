@@ -1,4 +1,4 @@
-from .exceptions import PyCricinfoException  # noqa
+from .exceptions import PageNotFoundException, PyCricinfoException  # noqa
 from .ground import Ground  # noqa
 from .livescores import LiveScores  # noqa
 from .match import Match  # noqa

@@ -3,8 +3,9 @@ from functools import cached_property
 from typing import Optional
 
 from gazpacho import Soup, get
+from gazpacho.utils import HTTPError
 
-from pycricinfo.exceptions import PyCricinfoException
+from pycricinfo.exceptions import PageNotFoundException, PyCricinfoException
 
 
 class Match(object):
@@ -62,17 +63,31 @@ class Match(object):
             with open(self.html_file, "r") as f:
                 return f.read()
         else:
-            r = get(self.url)
-            return r
+            try:
+                return get(self.url)
+            except HTTPError as e:
+                if e.code == 404:
+                    raise PageNotFoundException(
+                        e.code,
+                        f"Match {self.match_id} not found. Check that the id is correct.",
+                    )
+                return ""
 
     @cached_property
     def json(self) -> dict:
-
         if self.json_file:
             with open(self.json_file, "r") as f:
                 return json.loads(f.read())
         else:
-            return get(self.json_url)
+            try:
+                return get(self.json_url)
+            except HTTPError as e:
+                if e.code == 404:
+                    raise PageNotFoundException(
+                        e.code,
+                        f"Match {self.match_id} not found. Check that the id is correct.",
+                    )
+                return {}
 
     @cached_property
     def soup(self) -> Soup:

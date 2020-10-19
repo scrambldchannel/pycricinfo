@@ -6,3 +6,13 @@ class PyCricinfoException(Exception):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
+
+
+class PageNotFoundException(Exception):
+    """
+    Exception used when an attempt has been made to access a non existent page
+    """
+
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
