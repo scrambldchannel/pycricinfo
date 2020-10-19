@@ -1,67 +1,41 @@
 import json
+import warnings
 from functools import cached_property
 from typing import Optional
 
-from gazpacho import Soup, get
+from gazpacho import Soup
 
-from pycricinfo import PyCricinfoException
+from pycricinfo.base import BaseCricinfoPage
 
 
-class Team(object):
+class Team(BaseCricinfoPage):
     """
     Abstraction of a team
     """
 
     def __init__(
         self,
-        team_id: int,
+        id: int,
         html_file: str = None,
-        json_file: str = None,
     ) -> None:
 
-        self.team_id = team_id
-
-        self.url = f"https://www.espncricinfo.com/team/_/id/{self.team_id}/"
-
-        self.json_url = None
+        self.id = id
+        self.url = f"https://www.espncricinfo.com/team/_/id/{self.id}/"
 
         self.html_file = html_file
-        self.json_file = json_file
 
     @classmethod
     def from_file(cls, html_file: str):
         with open(html_file, "r") as f:
             # get team_id
             soup = Soup(f.read())
-            team_id = int(
+            id = int(
                 soup.find("link", attrs={"rel": "canonical"})
                 .attrs["href"]
                 .split("/")[6]
             )
 
-        return cls(team_id=team_id, html_file=html_file)
-
-    def to_file(self, html_file: str = None) -> None:
-
-        if not html_file:
-            html_file = f"{self.team_id}.html"
-
-        with open(html_file, "w") as f:
-            f.write(self.soup.html)
-
-    @cached_property
-    def html(self) -> str:
-
-        if self.html_file:
-            with open(self.html_file, "r") as f:
-                return f.read()
-        else:
-            r = get(self.url)
-            return r
-
-    @cached_property
-    def soup(self) -> Soup:
-        return Soup(self.html)
+        return cls(id=id, html_file=html_file)
 
     @cached_property
     def embedded_json(self) -> Optional[dict]:
@@ -70,5 +44,6 @@ class Team(object):
                 "script", attrs={"id": "__NEXT_DATA__"}, mode="first"
             ).text
             return json.loads(json_text)
-        except:
-            raise PyCricinfoException("Team.embedded_json", "Embedded JSON not found")
+        except Exception:
+            warnings.warn("Embedded JSON not found", RuntimeWarning)
+            return {}

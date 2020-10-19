@@ -1,62 +1,35 @@
-from functools import cached_property
+from gazpacho import Soup
 
-from gazpacho import Soup, get
+from pycricinfo.base import BaseCricinfoPage
 
 
-class Ground(object):
+class Ground(BaseCricinfoPage):
     """
     Abstraction of a team
     """
 
     def __init__(
         self,
-        ground_id: int,
+        id: int,
         html_file: str = None,
-        json_file: str = None,
     ) -> None:
 
-        self.ground_id = ground_id
+        self.id = id
 
-        self.url = (
-            f"https://www.espncricinfo.com/ci/content/ground/{self.ground_id}.html"
-        )
-
-        self.json_url = None
+        self.url = f"https://www.espncricinfo.com/ci/content/ground/{self.id}.html"
 
         self.html_file = html_file
-        self.json_file = json_file
 
     @classmethod
     def from_file(cls, html_file: str):
         with open(html_file, "r") as f:
-            # get player_id
+            # get id
             soup = Soup(f.read())
-            ground_id = int(
+            id = int(
                 soup.find("link", attrs={"rel": "canonical"})
                 .attrs["href"]
                 .split("/")[6]
                 .split(".")[0]
             )
 
-        return cls(ground_id=ground_id, html_file=html_file)
-
-    def to_file(self, html_file: str = None) -> None:
-
-        if not html_file:
-            html_file = f"{self.ground_id}.html"
-
-        with open(html_file, "w") as f:
-            f.write(self.soup.html)
-
-    @cached_property
-    def html(self):
-        if self.html_file:
-            with open(self.html_file, "r") as f:
-                return f.read
-        else:
-            r = get(self.url)
-            return r
-
-    @cached_property
-    def soup(self) -> Soup:
-        return Soup(self.html)
+        return cls(id=id, html_file=html_file)

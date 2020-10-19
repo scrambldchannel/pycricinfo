@@ -5,7 +5,7 @@ from pycricinfo import Series
 
 def test_series():
     s = Series(8048)
-    assert s.series_id == 8048
+    assert s.id == 8048
     assert s.is_tournament
     assert s.name == "Indian Premier League"
 
@@ -17,7 +17,7 @@ def test_series_to_from_file():
 
     s2 = Series.from_files(html_file="8044.html", json_file="8044.json")
 
-    assert s.series_id == s2.series_id
+    assert s.id == s2.id
     assert s.name == s2.name
     assert s.seasons == s2.seasons
 

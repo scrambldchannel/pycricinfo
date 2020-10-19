@@ -6,28 +6,27 @@ from typing import Optional
 from gazpacho import Soup, get
 from gazpacho.utils import HTTPError
 
+from pycricinfo.base import BaseCricinfoPage
 from pycricinfo.exceptions import PageNotFoundException, PyCricinfoException
 
 
-class Match(object):
+class Match(BaseCricinfoPage):
     """
     Object that abstracts the information avialable about a match
     """
 
     def __init__(
         self,
-        match_id: int,
+        id: int,
         html_file: Optional[str] = None,
         json_file: Optional[str] = None,
         **kwargs,
     ) -> None:
 
-        self.match_id = match_id
+        self.id = id
 
-        self.url = f"https://www.espncricinfo.com/matches/engine/match/{match_id}.html"
-        self.json_url = (
-            f"https://www.espncricinfo.com/matches/engine/match/{match_id}.json"
-        )
+        self.url = f"https://www.espncricinfo.com/matches/engine/match/{id}.html"
+        self.json_url = f"https://www.espncricinfo.com/matches/engine/match/{id}.json"
 
         self.html_file = html_file
         self.json_file = json_file
@@ -35,44 +34,27 @@ class Match(object):
     @classmethod
     def from_files(cls, html_file: str, json_file: str):
         with open(html_file, "r") as f:
-            # get match_id
+            # get match id
             soup = Soup(f.read())
-            match_id = int(
+            id = int(
                 soup.find("link", attrs={"rel": "canonical"})
                 .attrs["href"]
                 .split("/")[6]
             )
 
-        return cls(match_id=match_id, html_file=html_file, json_file=json_file)
+        return cls(id=id, html_file=html_file, json_file=json_file)
 
     def to_files(self, html_file: str = None, json_file: str = None) -> None:
 
         if not html_file:
-            html_file = f"{self.match_id}.html"
+            html_file = f"{self.id}.html"
         if not json_file:
-            json_file = f"{self.match_id}.json"
+            json_file = f"{self.id}.json"
 
         with open(html_file, "w") as f:
             f.write(self.soup.html)
         with open(json_file, "w") as f:
             f.write(json.dumps(self.json, indent=4))
-
-    @cached_property
-    def html(self) -> str:
-
-        if self.html_file:
-            with open(self.html_file, "r") as f:
-                return f.read()
-        else:
-            try:
-                return get(self.url)
-            except HTTPError as e:
-                if e.code == 404:
-                    raise PageNotFoundException(
-                        e.code,
-                        f"Match {self.match_id} not found. Check that the id is correct.",
-                    )
-                return ""
 
     @cached_property
     def json(self) -> dict:
@@ -86,13 +68,9 @@ class Match(object):
                 if e.code == 404:
                     raise PageNotFoundException(
                         e.code,
-                        f"Match {self.match_id} not found. Check that the id is correct.",
+                        f"Match {self.id} not found. Check that the id is correct.",
                     )
                 raise PyCricinfoException(e.code, e.message)
-
-    @cached_property
-    def soup(self) -> Soup:
-        return Soup(self.html)
 
     @cached_property
     def embedded_json(self) -> Optional[dict]:
@@ -103,7 +81,7 @@ class Match(object):
             return json.loads(json_text)
         except Exception:
             warnings.warn(
-                f"Embedded JSON not found for match {self.match_id}", RuntimeWarning
+                f"Embedded JSON not found for match {self.id}", RuntimeWarning
             )
             return None
 

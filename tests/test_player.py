@@ -5,7 +5,7 @@ from pycricinfo import Player
 
 def test_player():
     p = Player(6044)
-    assert p.player_id == 6044
+    assert p.id == 6044
     assert p.name == "Dean Jones"
     assert p.full_name == "Dean Mervyn Jones"
     assert p.batting_style == "Right-hand bat"
@@ -23,7 +23,7 @@ def test_player_to_from_file():
 
     p2 = Player.from_file("52812.html")
 
-    assert p2.player_id == 52812
+    assert p2.id == 52812
     assert len(p2.html) > 0
     assert isinstance(p2.html, str)
     assert p2.name == "Sir Viv Richards"
