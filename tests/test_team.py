@@ -5,7 +5,7 @@ from pycricinfo import Team
 
 def test_team():
     t = Team(387)
-    assert t.team_id == 387
+    assert t.id == 387
     assert t.html is not None
 
 
@@ -16,7 +16,7 @@ def test_team_to_from_file():
 
     t2 = Team.from_file("387.html")
 
-    assert t.team_id == t2.team_id
+    assert t.id == t2.id
     assert t2.html is not None
 
     p = Path("387.html")
