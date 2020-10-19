@@ -1,4 +1,5 @@
 import json
+import warnings
 from functools import cached_property
 from typing import Optional
 
@@ -87,7 +88,7 @@ class Match(object):
                         e.code,
                         f"Match {self.match_id} not found. Check that the id is correct.",
                     )
-                return {}
+                raise PyCricinfoException(e.code, e.message)
 
     @cached_property
     def soup(self) -> Soup:
@@ -100,67 +101,123 @@ class Match(object):
                 "script", attrs={"id": "__NEXT_DATA__"}, mode="first"
             ).text
             return json.loads(json_text)
-        except:
-            raise PyCricinfoException("Match.embedded_json", "Embedded JSON not found")
+        except Exception:
+            warnings.warn(
+                f"Embedded JSON not found for match {self.match_id}", RuntimeWarning
+            )
+            return None
 
     @cached_property
     def season(self):
-        return self.json.get("Match", {}).get("season")
+        try:
+            return self.json["Match"]["season"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def description(self) -> Optional[str]:
-        return self.json.get("description")
+        try:
+            return self.json.get("description")
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def series(self):
-        return self.json.get("series")
+        try:
+            return self.json.get("series")
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def series_id(self):
-        return self.json["series"][-1]["core_recreation_id"]
+        try:
+            return self.json["series"][-1]["core_recreation_id"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def date(self):
-        return self.json["match"]["start_date_raw"]
+        try:
+            return self.json["match"]["start_date_raw"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def result(self):
-        return self.json["live"]["status"]
+        try:
+            return self.json["live"]["status"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def ground_id(self):
-        return self.json["match"]["ground_id"]
+        try:
+            return self.json["match"]["ground_id"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def ground_name(self):
-        return self.json["match"]["ground_name"]
+        try:
+            return self.json["match"]["ground_name"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def innings_list(self):
         try:
             return self.json["centre"]["common"]["innings_list"]
-        except:
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
             return None
 
     @cached_property
     def innings(self):
-        return self.json["innings"]
+        try:
+            return self.json["innings"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_1(self):
-        return self.json["team"][0]
+        try:
+            return self.json["team"][0]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_1_id(self):
-        return self.team_1["team_id"]
+        try:
+            return self.team_1["team_id"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_1_abbreviation(self):
-        return self.team_1["team_abbreviation"]
+        try:
+            return self.team_1["team_abbreviation"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_1_players(self):
-        return self.team_1.get("player", [])
+        try:
+            return self.team_1.get("player", [])
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_1_innings(self):
@@ -170,24 +227,41 @@ class Match(object):
                 for inn in self.json["innings"]
                 if inn["batting_team_id"] == self.get_team_1_id()
             ][0]
-        except:
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
             return None
 
     @cached_property
     def team_2(self):
-        return self.json["team"][1]
+        try:
+            return self.json["team"][1]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_2_id(self):
-        return self.team_2["team_id"]
+        try:
+            return self.team_2["team_id"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_2_abbreviation(self):
-        return self.team_2["team_abbreviation"]
+        try:
+            return self.team_2["team_abbreviation"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_2_players(self):
-        return self.team_2.get("player", [])
+        try:
+            return self.team_2.get("player", [])
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
 
     @cached_property
     def team_2_innings(self):
@@ -197,7 +271,8 @@ class Match(object):
                 for inn in self.json["innings"]
                 if inn["batting_team_id"] == self.get_team_2_id()
             ][0]
-        except:
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
             return None
 
     # embedded_json methods
@@ -206,7 +281,8 @@ class Match(object):
     def rosters(self):
         try:
             return self.embedded_json["props"]["pageProps"]["data"]["content"]["teams"]
-        except:
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
             return None
 
     @cached_property
@@ -215,14 +291,6 @@ class Match(object):
             return self.embedded_json["props"]["pageProps"]["data"]["content"][
                 "innings"
             ]
-        except:
-            return None
-
-    @cached_property
-    def close_of_play(self):
-        try:
-            return self.embedded_json["props"]["pageProps"]["data"]["content"][
-                "closePlay"
-            ]
-        except:
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
             return None
