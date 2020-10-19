@@ -1,4 +1,4 @@
 [flake8]
-# E722 and W503 to be reviewed
-ignore = E230, E722, W503
+# W503 conflicts in some cases with Black
+ignore = E230, W503
 max-line-length = 140
