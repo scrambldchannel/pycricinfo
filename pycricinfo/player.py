@@ -1,3 +1,4 @@
+import warnings
 from functools import cached_property
 from typing import Optional
 
@@ -92,70 +93,79 @@ class Player(object):
         return None
 
     @cached_property
-    def player_stats(self) -> Optional[dict]:
+    def player_stats(self) -> dict:
         stats = {}
 
-        etables = self.soup.find("table", attrs={"class": "engineTable"}, mode="all")
+        try:
+            etables = self.soup.find(
+                "table", attrs={"class": "engineTable"}, mode="all"
+            )
 
-        if len(etables) >= 2:
+            if len(etables) >= 2:
 
-            # this will hopefully be batting
-            batting_table = etables[0]
-            batting = {}
-            header_columns = []
-            for th in (
-                batting_table.find("thead", mode="first")
-                .find("tr", mode="first")
-                .find("th", mode="all")
-            ):
-                header_columns.append(th.attrs["title"])
+                # this will hopefully be batting
+                batting_table = etables[0]
+                batting = {}
+                header_columns = []
+                for th in (
+                    batting_table.find("thead", mode="first")
+                    .find("tr", mode="first")
+                    .find("th", mode="all")
+                ):
+                    header_columns.append(th.attrs["title"])
 
-            for tr in batting_table.find("tbody", mode="first").find("tr", mode="all"):
+                for tr in batting_table.find("tbody", mode="first").find(
+                    "tr", mode="all"
+                ):
 
-                grade_stats = {}
+                    grade_stats = {}
 
-                stat_columns = tr.find("td", mode="all")
+                    stat_columns = tr.find("td", mode="all")
 
-                grade = stat_columns[0].text
+                    grade = stat_columns[0].text
 
-                for index, col in enumerate(stat_columns[1:]):
+                    for index, col in enumerate(stat_columns[1:]):
 
-                    grade_stats[header_columns[index + 1]] = stat_columns[
-                        index + 1
-                    ].text
+                        grade_stats[header_columns[index + 1]] = stat_columns[
+                            index + 1
+                        ].text
 
-                batting[grade] = grade_stats
+                    batting[grade] = grade_stats
 
-            stats["batting"] = batting
+                stats["batting"] = batting
 
-            bowling_table = etables[1]
+                bowling_table = etables[1]
 
-            bowling = {}
+                bowling = {}
 
-            header_columns = []
-            for th in (
-                bowling_table.find("thead", mode="first")
-                .find("tr", mode="first")
-                .find("th", mode="all")
-            ):
-                header_columns.append(th.attrs["title"])
+                header_columns = []
+                for th in (
+                    bowling_table.find("thead", mode="first")
+                    .find("tr", mode="first")
+                    .find("th", mode="all")
+                ):
+                    header_columns.append(th.attrs["title"])
 
-            for tr in bowling_table.find("tbody", mode="first").find("tr", mode="all"):
+                for tr in bowling_table.find("tbody", mode="first").find(
+                    "tr", mode="all"
+                ):
 
-                grade_stats = {}
+                    grade_stats = {}
 
-                stat_columns = tr.find("td", mode="all")
+                    stat_columns = tr.find("td", mode="all")
 
-                grade = stat_columns[0].text
+                    grade = stat_columns[0].text
 
-                for index, col in enumerate(stat_columns[1:]):
+                    for index, col in enumerate(stat_columns[1:]):
 
-                    grade_stats[header_columns[index + 1]] = stat_columns[
-                        index + 1
-                    ].text
+                        grade_stats[header_columns[index + 1]] = stat_columns[
+                            index + 1
+                        ].text
 
-                bowling[grade] = grade_stats
+                    bowling[grade] = grade_stats
 
-            stats["bowling"] = bowling
+                stats["bowling"] = bowling
+        except Exception:
+            warnings.warn("Player stats could not be parsed", RuntimeWarning)
 
         return stats
