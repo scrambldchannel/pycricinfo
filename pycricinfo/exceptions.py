@@ -8,7 +8,7 @@ class PyCricinfoException(Exception):
         self.message = message
 
 
-class PageNotFoundException(Exception):
+class PageNotFoundException(PyCricinfoException):
     """
     Exception used when an attempt has been made to access a non existent page
     """

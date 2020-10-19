@@ -1,4 +1,5 @@
 import json
+import warnings
 from functools import cached_property
 from typing import List
 
@@ -36,7 +37,10 @@ class LiveScores(object):
             ).text
             return json.loads(json_text)
         except Exception:
-            raise RuntimeWarning("Unable to obtain embedded JSON in live scores page")
+            warnings.warn(
+                "Unable to obtain embedded JSON in live scores page", RuntimeWarning
+            )
+            return {}
 
     @cached_property
     def live_matches(self) -> List[int]:
