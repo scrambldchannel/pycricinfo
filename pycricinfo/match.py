@@ -1,5 +1,6 @@
 import json
 import warnings
+from datetime import datetime
 from functools import cached_property
 from typing import Optional
 
@@ -94,9 +95,10 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def date(self):
+    def date(self) -> Optional[datetime]:
         try:
-            return self.json["match"]["start_date_raw"]
+            date_str = self.json["match"]["start_datetime_local"]
+            return datetime.fromisoformat(date_str)
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None

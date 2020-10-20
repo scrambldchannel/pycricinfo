@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 import pytest
@@ -21,6 +22,16 @@ def test_ipl():
         m.description
         == "Pepsi Indian Premier League, Qualifier 1: Kings XI Punjab v Kolkata Knight Riders at Kolkata, May 27-28, 2014"
     )
+
+
+def test_date():
+    m = Match(1175356)
+    assert isinstance(m.date, datetime)
+
+    m2 = Match(1226908)
+    assert isinstance(m.date, datetime)
+
+    assert m2.date > m.date
 
 
 def test_match_t_from_file():
