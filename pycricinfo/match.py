@@ -182,7 +182,7 @@ class Match(BaseCricinfoPage):
                 for p in self.json["team"][index]["player"]:
                     players.append(
                         {
-                            "id": p["object_id"],
+                            "id": int(p["object_id"]),
                             "name": p["known_as"],
                         }
                     )
@@ -234,15 +234,16 @@ class Match(BaseCricinfoPage):
         if details:
             batting = []
             for b in details[index]["batsmen"]:
-                id = b["href"].split("/")[6].split(".")[0]
+                id = int(b["href"].split("/")[6].split(".")[0])
 
                 # bit of a hack to get the player's name
                 name = ""
+
                 for t in self.teams:
-                    if t.get("id") == inn["batting_team_id"]:
-                        for p in t.get("players", []):
-                            if id == p.id:
-                                name = p.get("name")
+                    if t["id"] == innings["batting_team_id"]:
+                        for p in t["players"]:
+                            if p["id"] == id:
+                                name = p["name"]
 
                 batting.append(
                     {
