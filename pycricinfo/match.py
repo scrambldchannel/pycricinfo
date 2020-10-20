@@ -130,7 +130,10 @@ class Match(BaseCricinfoPage):
     @cached_property
     def season(self):
         try:
-            return self.json["match"]["season"]
+            return {
+                "id": int(self.json["match"]["season"].split("/")[0]),
+                "name": self.json["match"]["season"],
+            }
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None

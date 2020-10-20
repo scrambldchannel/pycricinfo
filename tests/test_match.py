@@ -42,6 +42,14 @@ def test_format():
     assert m2.format == "Test"
 
 
+def test_season():
+    m = Match(65117)
+    assert m.format == "ODI"
+
+    m.season["id"] == 1987
+    m.season["name"] == "Reliance World Cup"
+
+
 def test_series():
     m = Match(1233446)
     assert isinstance(m.series, dict)
