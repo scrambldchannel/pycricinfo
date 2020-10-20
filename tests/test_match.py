@@ -88,7 +88,7 @@ def test_teams():
 
     # get a random player from each team and check the id is valid
     for t in m.teams:
-        random_player = t["players"][random.randint(0, 11)]
+        random_player = t["players"][random.randint(0, 10)]
 
         p = Player(random_player["id"])
 
