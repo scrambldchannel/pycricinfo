@@ -21,9 +21,43 @@ Matches:
 from pycricinfo import Match, Player
 
 m = Match(1216509)
-m.description
+m.name
 
 'Indian Premier League, 34th Match: Delhi Capitals v Chennai Super Kings at Sharjah, Oct 17, 2020'
+
+m.date
+
+datetime.datetime(2020, 10, 17, 18, 0)
+
+m.teams
+
+[{'id': 4344,
+  'name': 'Delhi Capitals',
+  'players': [{'id': '1070168', 'name': 'Prithvi Shaw'},
+   {'id': '28235', 'name': 'Shikhar Dhawan'},
+   {'id': '277916', 'name': 'Ajinkya Rahane'},
+   {'id': '642519', 'name': 'Shreyas Iyer'},
+   {'id': '325012', 'name': 'Marcus Stoinis'},
+   {'id': '326434', 'name': 'Alex Carey'},
+   {'id': '554691', 'name': 'Axar Patel'},
+   {'id': '26421', 'name': 'Ravichandran Ashwin'},
+   {'id': '822553', 'name': 'Tushar Deshpande'},
+   {'id': '550215', 'name': 'Kagiso Rabada'},
+   {'id': '481979', 'name': 'Anrich Nortje'}]},
+ {'id': 4343,
+  'name': 'Chennai Super Kings',
+  'players': [{'id': '662973', 'name': 'Sam Curran'},
+   {'id': '44828', 'name': 'Faf du Plessis'},
+   {'id': '8180', 'name': 'Shane Watson'},
+   {'id': '33141', 'name': 'Ambati Rayudu'},
+   {'id': '28081', 'name': 'MS Dhoni'},
+   {'id': '234675', 'name': 'Ravindra Jadeja'},
+   {'id': '290716', 'name': 'Kedar Jadhav'},
+   {'id': '51439', 'name': 'Dwayne Bravo'},
+   {'id': '447261', 'name': 'Deepak Chahar'},
+   {'id': '475281', 'name': 'Shardul Thakur'},
+   {'id': '30288', 'name': 'Karn Sharma'}]}]
+
 ```
 
 Players:
