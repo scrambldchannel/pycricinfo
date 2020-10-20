@@ -74,7 +74,7 @@ class Match(BaseCricinfoPage):
                 raise PyCricinfoException(e.code, e.message)
 
     @cached_property
-    def embedded_json(self) -> Optional[dict]:
+    def embedded_json(self) -> dict:
         try:
             json_text = self.soup.find(
                 "script", attrs={"id": "__NEXT_DATA__"}, mode="first"
@@ -84,7 +84,7 @@ class Match(BaseCricinfoPage):
             warnings.warn(
                 f"Embedded JSON not found for match {self.id}", RuntimeWarning
             )
-            return None
+            return {}
 
     @cached_property
     def name(self) -> Optional[str]:
@@ -201,61 +201,82 @@ class Match(BaseCricinfoPage):
             return [{}, {}]
 
     @cached_property
-    def innings_list(self):
-        try:
-            return self.json["centre"]["common"]["innings_list"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
+    def _all_innings(self) -> List[dict]:
+
+        all_innings = []
+
+        innings_list = self._innings_list
+
+        if innings_list:
+
+            for index, inn in enumerate(innings_list):
+
+                batting = self._get_innings_batting(index)
+
+                all_innings.append({"batting": batting})
+        return all_innings
+
+    def _get_innings_batting(self, index: int) -> dict:
+
+        inn = self._innings_list[index]
+
+        innings = {
+            "batting_team_id": inn["batting_team_id"],
+            "bowling_team_id": inn["bowling_team_id"],
+            "balls_limit": inn.get("ball_limit"),
+            "balls": inn.get("balls"),
+            "over_limit": inn.get("over_limit"),
+            "overs": inn.get("overs"),
+        }
+
+        details = self._innings_details_list
+
+        if details:
+            batting = []
+            for b in details[index]["batsmen"]:
+                id = b["href"].split("/")[6].split(".")[0]
+                # bit of a hack to get the player's name
+                for t in self.teams:
+                    if t.get("id") == inn["batting_team_id"]:
+                        for p in t.get("players", []):
+                            name = p.get("name")
+
+                batting.append(
+                    {
+                        "id": id,
+                        "name": name,
+                        "captain": b.get("captain"),
+                        "runs": b.get("runs"),
+                        "balls": b.get("ballsFaced"),
+                        "minutes": b.get("minutes"),
+                        "fours": b.get("fours"),
+                        "sixes": b.get("sixes"),
+                        "sr": b.get("strikeRate"),
+                        "fow": {
+                            "runs": b.get("runningScore", {}).get("runs"),
+                            "wickets": b.get("runningScore", {}).get("wickets"),
+                            "overs": b.get("runningOver"),
+                        },
+                    }
+                )
+            innings["batting"] = batting
+
+        return innings
 
     @cached_property
-    def innings(self):
+    def _innings_details_list(self) -> List:
         try:
-            return self.json["innings"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def team_1_innings(self) -> list:
-        try:
-            innings = []
-            for i in self.json["innings"]:
-                if i["batting_team_id"] == self.teams[0]["id"]:
-                    innings.append(i)
-            return i
+            return self.embedded_json["props"]["pageProps"]["data"]["content"][
+                "innings"
+            ]
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return []
 
     @cached_property
-    def team_2_innings(self):
+    def _innings_list(self):
         try:
-            innings = []
-            for i in self.json["innings"]:
-                if i["batting_team_id"] == self.teams[1]["id"]:
-                    innings.append(i)
-            return i
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    # embedded_json methods
-
-    @cached_property
-    def rosters(self):
-        try:
-            return self.embedded_json["props"]["pageProps"]["data"]["content"]["teams"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def all_innings(self):
-        try:
-            return self.embedded_json["props"]["pageProps"]["data"]["content"][
-                "innings"
-            ]
+            return self.json["innings"]
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None
