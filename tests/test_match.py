@@ -41,13 +41,19 @@ def test_format():
     m2 = Match(215010)
     assert m2.format == "Test"
 
+    m3 = Match(65117)
+    assert m3.format == "ODI"
+
 
 def test_season():
     m = Match(65117)
-    assert m.format == "ODI"
 
     m.season["id"] == 1987
     m.season["name"] == "Reliance World Cup"
+
+    m2 = Match(734043)
+    m2.season["id"] == 2020
+    m2.season["name"] == "2020"
 
 
 def test_series():
