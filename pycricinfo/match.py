@@ -239,23 +239,3 @@ class Match(BaseCricinfoPage):
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None
-
-    # embedded_json methods
-
-    @cached_property
-    def rosters(self):
-        try:
-            return self.embedded_json["props"]["pageProps"]["data"]["content"]["teams"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def all_innings(self):
-        try:
-            return self.embedded_json["props"]["pageProps"]["data"]["content"][
-                "innings"
-            ]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
