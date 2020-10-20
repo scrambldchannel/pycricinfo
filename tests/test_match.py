@@ -42,6 +42,13 @@ def test_format():
     assert m2.format == "Test"
 
 
+def test_series():
+    m = Match(1233446)
+    assert isinstance(m.series, dict)
+    assert m.series["id"] == 8043
+    assert m.series["name"] == "Sheffield Shield"
+
+
 def test_match_t_from_file():
 
     m = Match(1216499)

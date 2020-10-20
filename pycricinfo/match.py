@@ -116,17 +116,13 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def series_name(self):
+    def series(self) -> Optional[dict]:
         try:
-            return self.json["series"][0]["series_name"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def series_id(self):
-        try:
-            return self.json["series"][-1]["core_recreation_id"]
+            series = {
+                "id": int(self.json["series"][0]["core_recreation_id"]),
+                "name": self.json["series"][0]["series_name"],
+            }
+            return series
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None
