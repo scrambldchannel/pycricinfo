@@ -221,8 +221,8 @@ class Match(BaseCricinfoPage):
         inn = self._innings_list[index]
 
         innings = {
-            "batting_team_id": inn["batting_team_id"],
-            "bowling_team_id": inn["bowling_team_id"],
+            "batting_team_id": int(inn["batting_team_id"]),
+            "bowling_team_id": int(inn["bowling_team_id"]),
             "balls_limit": inn.get("ball_limit"),
             "balls": inn.get("balls"),
             "over_limit": inn.get("over_limit"),
@@ -235,11 +235,14 @@ class Match(BaseCricinfoPage):
             batting = []
             for b in details[index]["batsmen"]:
                 id = b["href"].split("/")[6].split(".")[0]
+
                 # bit of a hack to get the player's name
+                name = ""
                 for t in self.teams:
                     if t.get("id") == inn["batting_team_id"]:
                         for p in t.get("players", []):
-                            name = p.get("name")
+                            if id == p.id:
+                                name = p.get("name")
 
                 batting.append(
                     {
