@@ -104,6 +104,18 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
+    def format(self) -> Optional[str]:
+        try:
+            if self.json["match"]["international_valid"] != "1":
+                return self.json["match"]["general_class_card"]
+            else:
+                return self.json["match"]["international_class_card"]
+
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
+
+    @cached_property
     def series_name(self):
         try:
             return self.json["series"][0]["series_name"]

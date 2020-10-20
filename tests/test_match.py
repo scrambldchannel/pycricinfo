@@ -34,6 +34,14 @@ def test_date():
     assert m2.date > m.date
 
 
+def test_format():
+    m = Match(1227897)
+    assert m.format == "Twenty20"
+
+    m2 = Match(215010)
+    assert m2.format == "Test"
+
+
 def test_match_t_from_file():
 
     m = Match(1216499)
