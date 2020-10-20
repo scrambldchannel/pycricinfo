@@ -1,16 +1,17 @@
+import random
 from datetime import datetime
 from pathlib import Path
 
 import pytest
 
-from pycricinfo import Match, PageNotFoundException
+from pycricinfo import Match, PageNotFoundException, Player
 
 
 def test_test_match():
     m = Match(63438)
     assert m.id == 63438
     assert (
-        m.description
+        m.name
         == "Australia tour of India, 1st Test: India v Australia at Chennai, Sep 18-22, 1986"
     )
 
@@ -19,7 +20,7 @@ def test_ipl():
     m = Match(734043)
     assert m.id == 734043
     assert (
-        m.description
+        m.name
         == "Pepsi Indian Premier League, Qualifier 1: Kings XI Punjab v Kolkata Knight Riders at Kolkata, May 27-28, 2014"
     )
 
@@ -36,10 +37,32 @@ def test_date():
 
 def test_format():
     m = Match(1227897)
-    assert m.format == "Twenty20"
+    assert m.format["id"] == 6
+    assert m.format["name"] == "Twenty20"
 
     m2 = Match(215010)
-    assert m2.format == "Test"
+    assert m2.format["id"] == 4
+    assert m2.format["name"] == "Test"
+
+    m3 = Match(65117)
+    assert m3.format["id"] == 5
+    assert m3.format["name"] == "ODI"
+
+    m4 = Match(1226905)
+    assert m4.format["id"] == 13
+    assert m4.format["name"] == "Other Twenty20 matches"
+
+
+def test_season():
+    m = Match(65117)
+
+    assert m.season["id"] == 1987
+    assert m.season["name"] == "1987/88"
+
+    m2 = Match(734043)
+
+    assert m2.season["id"] == 2014
+    assert m2.season["name"] == "2014"
 
 
 def test_series():
@@ -49,7 +72,30 @@ def test_series():
     assert m.series["name"] == "Sheffield Shield"
 
 
-def test_match_t_from_file():
+def test_ground():
+    m = Match(62396)
+    assert isinstance(m.series, dict)
+    assert m.ground["id"] == 61
+    assert m.ground["name"] == "Melbourne Cricket Ground"
+
+
+def test_teams():
+    m = Match(62396)
+
+    assert len(m.teams) == 2
+    assert len(m.teams[0]["players"]) == 11
+    assert len(m.teams[1]["players"]) == 11
+
+    # get a random player from each team and check the id is valid
+    for t in m.teams:
+        random_player = t["players"][random.randint(0, 10)]
+
+        p = Player(random_player["id"])
+
+        assert p.name == random_player["name"]
+
+
+def test_match_to_from_file():
 
     m = Match(1216499)
     m.to_files()
@@ -57,7 +103,12 @@ def test_match_t_from_file():
     m2 = Match.from_files(html_file="1216499.html", json_file="1216499.json")
 
     assert m.id == m2.id
-    assert m.description == m2.description
+    assert m.name == m2.name
+    assert m.format == m2.format
+    assert m.series == m2.series
+    assert m.season == m2.season
+    assert m.date == m2.date
+    assert m.ground == m2.ground
 
     p = Path("1216499.html")
     p.unlink(missing_ok=True)

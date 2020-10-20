@@ -2,7 +2,7 @@ import json
 import warnings
 from datetime import datetime
 from functools import cached_property
-from typing import Optional
+from typing import List, Optional
 
 from gazpacho import Soup, get
 from gazpacho.utils import HTTPError
@@ -87,7 +87,15 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def description(self) -> Optional[str]:
+    def name(self) -> Optional[str]:
+        try:
+            return self.json.get("description")
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
+
+    @cached_property
+    def short_name(self) -> Optional[str]:
         try:
             return self.json.get("description")
         except Exception:
@@ -104,12 +112,20 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def format(self) -> Optional[str]:
+    def format(self) -> Optional[dict]:
         try:
-            if self.json["match"]["international_valid"] != "1":
-                return self.json["match"]["general_class_card"]
+            if self.json["match"].get("international_valid") != "1":
+                return {
+                    "id": int(self.json["match"].get("general_class_id", -1)),
+                    "name": self.json["match"]["general_class_card"]
+                    if self.json["match"]["general_class_card"] != ""
+                    else self.json["match"]["general_class_name"],
+                }
             else:
-                return self.json["match"]["international_class_card"]
+                return {
+                    "id": int(self.json["match"].get("general_class_id", -1)),
+                    "name": self.json["match"]["international_class_card"],
+                }
 
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
@@ -128,9 +144,12 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def season(self):
+    def season(self) -> Optional[dict]:
         try:
-            return self.json["match"]["season"]
+            return {
+                "id": int(self.json["match"]["season"].split("/")[0]),
+                "name": self.json["match"]["season"],
+            }
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None
@@ -144,20 +163,42 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def ground_name(self):
+    def ground(self) -> Optional[dict]:
         try:
-            return self.json["match"]["ground_name"]
+            return {
+                "id": int(self.json["match"]["ground_id"]),
+                "name": self.json["match"]["ground_name"],
+            }
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None
 
     @cached_property
-    def ground_id(self):
+    def teams(self) -> List[dict]:
         try:
-            return self.json["match"]["ground_id"]
+            teams = []
+            for index, team in enumerate(self.json["team"]):
+                players = []
+                for p in self.json["team"][index]["player"]:
+                    players.append(
+                        {
+                            "id": p["object_id"],
+                            "name": p["known_as"],
+                        }
+                    )
+                teams.append(
+                    {
+                        "id": int(self.json["team"][index]["team_id"]),
+                        "name": self.json["team"][index]["team_name"],
+                        "players": players,
+                    }
+                )
+
+            return teams
+
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
-            return None
+            return [{}, {}]
 
     @cached_property
     def innings_list(self):
@@ -176,35 +217,11 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def team_1_name(self):
-        try:
-            return self.json["team"][0]["team_name"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def team_1_id(self):
-        try:
-            return self.json["team"][0]["team_id"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def team_1_players(self):
-        try:
-            return self.json["team"][0].get("player", [])
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
     def team_1_innings(self) -> list:
         try:
             innings = []
             for i in self.json["innings"]:
-                if i["batting_team_id"] == self.team_1_id:
+                if i["batting_team_id"] == self.teams[0]["id"]:
                     innings.append(i)
             return i
         except Exception:
@@ -212,35 +229,11 @@ class Match(BaseCricinfoPage):
             return []
 
     @cached_property
-    def team_2_name(self) -> Optional[str]:
-        try:
-            return self.json["team"][1]["team_name"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def team_2_id(self):
-        try:
-            return self.team_2["team_id"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
-    def team_2_players(self):
-        try:
-            return self.team_2.get("player", [])
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    @cached_property
     def team_2_innings(self):
         try:
             innings = []
             for i in self.json["innings"]:
-                if i["batting_team_id"] == self.team_2_id:
+                if i["batting_team_id"] == self.teams[1]["id"]:
                     innings.append(i)
             return i
         except Exception:
