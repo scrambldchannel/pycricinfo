@@ -104,12 +104,20 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def format(self) -> Optional[str]:
+    def format(self) -> Optional[dict]:
         try:
-            if self.json["match"]["international_valid"] != "1":
-                return self.json["match"]["general_class_card"]
+            if self.json["match"].get("international_valid") != "1":
+                return {
+                    "id": int(self.json["match"].get("general_class_id", -1)),
+                    "name": self.json["match"]["general_class_card"]
+                    if self.json["match"]["general_class_card"] != ""
+                    else self.json["match"]["general_class_name"],
+                }
             else:
-                return self.json["match"]["international_class_card"]
+                return {
+                    "id": int(self.json["match"].get("general_class_id", -1)),
+                    "name": self.json["match"]["international_class_card"],
+                }
 
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
@@ -128,7 +136,7 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
-    def season(self):
+    def season(self) -> Optional[dict]:
         try:
             return {
                 "id": int(self.json["match"]["season"].split("/")[0]),

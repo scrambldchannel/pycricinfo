@@ -36,24 +36,32 @@ def test_date():
 
 def test_format():
     m = Match(1227897)
-    assert m.format == "Twenty20"
+    assert m.format["id"] == 6
+    assert m.format["name"] == "Twenty20"
 
     m2 = Match(215010)
-    assert m2.format == "Test"
+    assert m2.format["id"] == 4
+    assert m2.format["name"] == "Test"
 
     m3 = Match(65117)
-    assert m3.format == "ODI"
+    assert m3.format["id"] == 5
+    assert m3.format["name"] == "ODI"
+
+    m4 = Match(1226905)
+    assert m4.format["id"] == 13
+    assert m4.format["name"] == "Other Twenty20 matches"
 
 
 def test_season():
     m = Match(65117)
 
-    m.season["id"] == 1987
-    m.season["name"] == "Reliance World Cup"
+    assert m.season["id"] == 1987
+    assert m.season["name"] == "1987/88"
 
     m2 = Match(734043)
-    m2.season["id"] == 2020
-    m2.season["name"] == "2020"
+
+    assert m2.season["id"] == 2014
+    assert m2.season["name"] == "2014"
 
 
 def test_series():
