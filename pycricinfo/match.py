@@ -230,6 +230,38 @@ class Match(BaseCricinfoPage):
                 )
         return all_innings
 
+    @cached_property
+    def _innings_details_list(self) -> List:
+        try:
+            return self.embedded_json["props"]["pageProps"]["data"]["content"][
+                "innings"
+            ]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return []
+
+    @cached_property
+    def _innings_list(self):
+        try:
+            return self.json["innings"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
+
+    def _get_innings_headline(self, index: int) -> dict:
+        inn = self._innings_list[index]
+        if inn:
+            return {
+                "batting_team_id": BaseCricinfoPage.safe_int(inn["batting_team_id"]),
+                "bowling_team_id": BaseCricinfoPage.safe_int(inn["bowling_team_id"]),
+                "balls_limit": BaseCricinfoPage.safe_int(inn.get("ball_limit")),
+                "balls": BaseCricinfoPage.safe_int(inn.get("balls")),
+                "over_limit": BaseCricinfoPage.safe_float(inn.get("over_limit")),
+                "overs": BaseCricinfoPage.safe_float(inn.get("overs")),
+            }
+        else:
+            return {}
+
     def _get_innings_batting(self, index: int) -> Optional[list]:
 
         batting = []
@@ -272,38 +304,6 @@ class Match(BaseCricinfoPage):
             )
 
         return batting
-
-    @cached_property
-    def _innings_details_list(self) -> List:
-        try:
-            return self.embedded_json["props"]["pageProps"]["data"]["content"][
-                "innings"
-            ]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return []
-
-    @cached_property
-    def _innings_list(self):
-        try:
-            return self.json["innings"]
-        except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
-            return None
-
-    def _get_innings_headline(self, index: int) -> dict:
-        inn = self._innings_list[index]
-        if inn:
-            return {
-                "batting_team_id": BaseCricinfoPage.safe_int(inn["batting_team_id"]),
-                "bowling_team_id": BaseCricinfoPage.safe_int(inn["bowling_team_id"]),
-                "balls_limit": BaseCricinfoPage.safe_int(inn.get("ball_limit")),
-                "balls": BaseCricinfoPage.safe_int(inn.get("balls")),
-                "over_limit": BaseCricinfoPage.safe_float(inn.get("over_limit")),
-                "overs": BaseCricinfoPage.safe_float(inn.get("overs")),
-            }
-        else:
-            return {}
 
     def _get_innings_bowling(self, index: int) -> Optional[list]:
 
