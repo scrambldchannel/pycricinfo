@@ -1,5 +1,8 @@
 # pycricinfo
 
+[![scraper: gazpacho](https://img.shields.io/badge/scraper-gazpacho-C6422C)](https://github.com/maxhumber/gazpacho)
+
+
 A lightweight Python scraper for Cricinfo. Provides a number of classes that provide low level scraping of some of the pages on Cricinfo.
 
 ## Installation
@@ -58,6 +61,36 @@ m.teams
    {'id': '475281', 'name': 'Shardul Thakur'},
    {'id': '30288', 'name': 'Karn Sharma'}]}]
 
+m.match_stats
+
+{'all_innings': [{'batting_team_id': 4343,
+   'bowling_team_id': 4344,
+   'balls_limit': 120,
+   'balls': 120,
+   'over_limit': 20.0,
+   'overs': 20.0,
+   'batting': [{'id': 662973,
+     'name': 'Sam Curran',
+     'captain': False,
+     'runs': 0,
+     'balls': 3,
+     'minutes': 0,
+     'fours': 0,
+     'sixes': 0,
+     'sr': 0.0,
+     'fow': {'runs': 0, 'wickets': 1, 'overs': 0.3}},
+    {'id': 44828,
+     'name': 'Faf du Plessis',
+     'captain': False,
+     'runs': 58,
+     'balls': 47,
+     'minutes': 0,
+     'fours': 6,
+     'sixes': 2,
+     'sr': 123.4,
+     'fow': {'runs': 109, 'wickets': 3, 'overs': 14.4}},
+
+     # .......
 ```
 
 Players:
