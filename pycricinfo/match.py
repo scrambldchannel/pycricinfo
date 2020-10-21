@@ -293,6 +293,20 @@ class Match(BaseCricinfoPage):
                                 if p["id"] == id:
                                     name = p["name"]
 
+                    # try to get FOW
+                    fow = {}
+
+                    if b.get("runningScore"):
+                        fow["runs"] = BaseCricinfoPage.safe_int(
+                            b.get("runningScore", {}).get("runs")
+                        )
+                        fow["wickets"] = BaseCricinfoPage.safe_int(
+                            b.get("runningScore", {}).get("wickets")
+                        )
+
+                    if b.get("runningOver"):
+                        fow["overs"] = b.get("runningOver")
+
                     batting.append(
                         {
                             "id": id,
@@ -304,19 +318,8 @@ class Match(BaseCricinfoPage):
                             "fours": BaseCricinfoPage.safe_int(b.get("fours")),
                             "sixes": BaseCricinfoPage.safe_int(b.get("sixes")),
                             "sr": BaseCricinfoPage.safe_float(b.get("strikeRate")),
-                            "fow": {
-                                "runs": BaseCricinfoPage.safe_int(
-                                    b.get("runningScore", {}).get("runs")
-                                ),
-                                "wickets": BaseCricinfoPage.safe_int(
-                                    b.get("runningScore", {}).get("wickets")
-                                ),
-                                # overs expressed as floats is a bit iffy
-                                "overs": BaseCricinfoPage.safe_float(
-                                    b.get("runningOver")
-                                ),
-                            },
-                        }
+                            "fow": fow,
+                        },
                     )
 
         return batting
