@@ -34,6 +34,10 @@ class Match(BaseCricinfoPage):
 
     @classmethod
     def from_files(cls, html_file: str, json_file: str):
+        """
+        Create a match object by reading the html and json from saved files
+        """
+
         with open(html_file, "r") as f:
             # get match id
             soup = Soup(f.read())
@@ -46,6 +50,9 @@ class Match(BaseCricinfoPage):
         return cls(id=id, html_file=html_file, json_file=json_file)
 
     def to_files(self, html_file: str = None, json_file: str = None) -> None:
+        """
+        Save the match's json and html to file
+        """
 
         if not html_file:
             html_file = f"{self.id}.html"
@@ -59,6 +66,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def json(self) -> dict:
+        """
+        The JSON file for this match
+        """
         if self.json_file:
             with open(self.json_file, "r") as f:
                 return json.loads(f.read())
@@ -75,6 +85,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def embedded_json(self) -> dict:
+        """
+        Try to find the embedded json in the html
+        """
         try:
             json_text = self.soup.find(
                 "script", attrs={"id": "__NEXT_DATA__"}, mode="first"
@@ -88,6 +101,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def name(self) -> Optional[str]:
+        """
+        The long name of the match
+        """
         try:
             return self.json.get("description")
         except Exception:
@@ -96,7 +112,11 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def short_name(self) -> Optional[str]:
+        """
+        The short name for the match
+        """
         try:
+            # actually, this is wrong
             return self.json.get("description")
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
@@ -104,6 +124,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def date(self) -> Optional[datetime]:
+        """
+        The date the match starts (need to check this for red ball games)
+        """
         try:
             date_str = self.json["match"]["start_datetime_local"]
             return datetime.fromisoformat(date_str)
@@ -113,6 +136,10 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def format(self) -> Optional[dict]:
+        """
+        The class of cricket being played as a dict containing id and name
+        """
+
         try:
             if self.json["match"].get("international_valid") != "1":
                 return {
@@ -137,6 +164,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def series(self) -> Optional[dict]:
+        """
+        The series of cricket being played as a dict containing id and name
+        """
         try:
             series = {
                 "id": BaseCricinfoPage.safe_int(
@@ -151,6 +181,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def season(self) -> Optional[dict]:
+        """
+        The season of the series being played as a dict containing id and name
+        """
         try:
             return {
                 "id": BaseCricinfoPage.safe_int(
@@ -164,6 +197,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def result(self):
+        """
+        The result of the match as a string
+        """
         try:
             return self.json["live"]["status"]
         except Exception:
@@ -172,6 +208,10 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def ground(self) -> Optional[dict]:
+        """
+        The ground being played at as a dict containing id and name
+        """
+
         try:
             return {
                 "id": BaseCricinfoPage.safe_int(self.json["match"]["ground_object_id"]),
@@ -183,6 +223,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def teams(self) -> List[dict]:
+        """
+        The two teams as lists of dicts containing id and name
+        """
         try:
             teams = []
             for index, team in enumerate(self.json["team"]):
@@ -212,6 +255,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def match_stats(self) -> dict:
+        """
+        Gives a dictionary of the stats of the game
+        """
         return {
             # think about any other metadata that belongs here
             "all_innings": self._all_innings,
@@ -219,6 +265,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def _all_innings(self) -> List[dict]:
+        """
+        All innings that form part of the match as a list of dicts
+        """
 
         all_innings = []
 
@@ -237,6 +286,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def _innings_details_list(self) -> List:
+        """
+        The details of the innings stored in the json
+        """
         try:
             return self.embedded_json["props"]["pageProps"]["data"]["content"][
                 "innings"
@@ -248,6 +300,9 @@ class Match(BaseCricinfoPage):
 
     @cached_property
     def _innings_list(self):
+        """
+        The list of headline details for each innings
+        """
         try:
             return self.json["innings"]
         except Exception:
@@ -255,6 +310,9 @@ class Match(BaseCricinfoPage):
             return None
 
     def _get_innings_headline(self, index: int) -> dict:
+        """
+        The headline information for an innings
+        """
         inn = self._innings_list[index]
         if inn:
             return {
@@ -269,6 +327,9 @@ class Match(BaseCricinfoPage):
             return {}
 
     def _get_innings_batting(self, index: int) -> Optional[list]:
+        """
+        Get all the batting performances of an innings as a list of dicts
+        """
 
         batting = []
 
@@ -326,6 +387,9 @@ class Match(BaseCricinfoPage):
         return batting
 
     def _get_innings_bowling(self, index: int) -> Optional[list]:
+        """
+        Get all the bowling performances of an innings as a list of dicts
+        """
 
         bowling = []
 
