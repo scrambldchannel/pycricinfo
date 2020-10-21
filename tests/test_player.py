@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 
 from pycricinfo import Player
@@ -46,3 +47,13 @@ def test_player_stats():
     assert p.player_stats["batting"]["List A"]["stumpings"] == 0
     assert p.player_stats["bowling"]["Tests"]["wickets"] == 1
     assert p.player_stats["bowling"]["Tests"]["five wickets"] == 0
+
+
+def test_random_player(players):
+    p_id = random.choice(players)
+
+    p = Player(p_id)
+
+    assert isinstance(p.name, str)
+    assert isinstance(p.player_stats, dict)
+    assert isinstance(p.batting_style, str)

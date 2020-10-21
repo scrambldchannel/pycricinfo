@@ -23,6 +23,11 @@ def players():
 
 
 @pytest.fixture(scope="module")
+def grounds():
+    return [56293, 56402, 56490, 1170382, 59266, 59269, 468384, 58831]
+
+
+@pytest.fixture(scope="module")
 def teams():
     return [
         30,

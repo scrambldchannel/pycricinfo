@@ -65,7 +65,7 @@ class Player(BaseCricinfoPage):
         return None
 
     @cached_property
-    def batting_style(self) -> Optional[str]:
+    def batting_style(self) -> str:
         """
         The player's batting style eg Right-hand bat
         """
@@ -73,10 +73,10 @@ class Player(BaseCricinfoPage):
         for i in self.player_info_soup:
             if i.find("b").text == "Batting style":
                 return i.find("span", mode="first").text
-        return None
+        return ""
 
     @cached_property
-    def bowling_style(self) -> Optional[str]:
+    def bowling_style(self) -> str:
         """
         The player's bowling style(s) eg 'Right-arm offbreak'. Note, may return several, comma separated
         """
@@ -84,7 +84,7 @@ class Player(BaseCricinfoPage):
         for i in self.player_info_soup:
             if i.find("b").text == "Bowling style":
                 return i.find("span", mode="first").text
-        return None
+        return ""
 
     @cached_property
     def player_stats(self) -> dict:
