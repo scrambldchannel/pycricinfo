@@ -59,3 +59,23 @@ class BaseCricinfoPage:
 
             with open(json_file, "w") as f:
                 f.write(self.json)
+
+    @staticmethod
+    def safe_int(int_string: str = "0") -> int:
+        # bit of a hack to deal with None, '-', '', ' '
+        int_things = [None, "", "-", "0"]
+
+        if int_string in int_things:
+            return 0
+        else:
+            return int(int_string)
+
+    @staticmethod
+    def safe_float(float_string: str = "0.0") -> float:
+        # bit of a hack to deal with None, '-', '', ' '
+        float_things = [None, "", "-", "0"]
+
+        if float_string in float_things:
+            return 0.0
+        else:
+            return float(float_string)

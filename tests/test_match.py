@@ -138,3 +138,16 @@ def test_no_embedded_json():
     with pytest.warns(RuntimeWarning):
         m = Match(123)
         print(m.embedded_json)
+
+
+def test__all_innings():
+
+    # more needed
+    m = Match(1216509)
+
+    assert m._all_innings[0]["bowling"][0]["name"] == "Tushar Deshpande"
+    assert m._all_innings[0]["bowling"][2]["wickets"] == 0
+    assert m._all_innings[0]["bowling"][5]["name"] == "Marcus Stoinis"
+    assert m._all_innings[0]["bowling"][1]["sixes"] == 2
+    assert m._all_innings[0]["bowling"][3]["overs"] == 4.0
+    assert m._all_innings[0]["bowling"][3]["overs"] == 4
