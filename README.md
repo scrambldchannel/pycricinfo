@@ -103,20 +103,20 @@ p.name
 
 p.player_stats['batting']['Tests']
 
-{'matches played': 52,
- 'innings batted': 89,
+{'matches': 52,
+ 'innings': 89,
  'not outs': 11,
- 'runs scored': 3631,
+ 'runs': 3631,
  'highest inns score': '216',
- 'batting average': 46.55,
- 'balls faced': 7427,
- 'batting strike rate': 48.88,
- 'hundreds scored': 11,
- 'fifties scored': 14,
- 'boundary fours': 361,
- 'boundary sixes': 10,
- 'catches taken': 34,
- 'stumpings made': 0}
+ 'average': 46.55,
+ 'balls': 7427,
+ 'sr': 48.88,
+ '100s': 11,
+ '50s': 14,
+ 'fours': 361,
+ 'sixes': 10,
+ 'catches': 34,
+ 'stumpings': 0}
 ```
 
 Properties available are quite limited at this stage but each object stores the relevant page at ```.html``` and the JSON (if applicable) at ```.json```. It uses [Gazpacho](https://github.com/maxhumber/gazpacho) for html parsing with an instance of the ```Soup``` object availabe at ```.soup```.

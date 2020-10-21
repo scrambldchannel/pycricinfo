@@ -69,32 +69,6 @@ class Player(BaseCricinfoPage):
     @cached_property
     def player_stats(self) -> dict:
         stats = {}
-        to_int_stats = [
-            "wickets taken",
-            "five wkts in an inns",
-            "balls bowled",
-            "ten wkts in a match",
-            "runs conceded",
-            "four wkts in an inns",
-            "matches played",
-            "innings batted",
-            "not outs",
-            "runs scored",
-            "balls faced",
-            "hundreds scored",
-            "fifties scored",
-            "boundary fours",
-            "boundary sixes",
-            "catches taken",
-            "stumpings made",
-        ]
-        to_float_stats = [
-            "batting average",
-            "batting strike rate",
-            "bowling average",
-            "bowling strike rate",
-            "economy rate",
-        ]
 
         try:
             etables = self.soup.find(
@@ -125,17 +99,14 @@ class Player(BaseCricinfoPage):
                     grade = stat_columns[0].text
 
                     for index, col in enumerate(stat_columns[1:]):
+
                         stat = header_columns[index + 1]
 
                         val = stat_columns[index + 1].text
                         # hack to do type conversion
 
-                        if stat in to_int_stats:
-                            val = BaseCricinfoPage.safe_int(val)
-                        elif stat in to_float_stats:
-                            val = BaseCricinfoPage.safe_float(val)
-                        else:
-                            pass
+                        stat, val = self._format_stat(stat, val)
+                        # hack to do type conversion
 
                         grade_stats[stat] = val
 
@@ -171,19 +142,60 @@ class Player(BaseCricinfoPage):
                         val = stat_columns[index + 1].text
                         # hack to do type conversion
 
-                        if stat in to_int_stats:
-                            val = BaseCricinfoPage.safe_int(val)
-                        elif stat in to_float_stats:
-                            val = BaseCricinfoPage.safe_float(val)
-                        else:
-                            pass
-
+                        stat, val = self._format_stat(stat, val)
                         grade_stats[stat] = val
 
                     bowling[grade] = grade_stats
 
                 stats["bowling"] = bowling
-        except Exception:
+        except Exception as e:
+            raise e
             warnings.warn("Player stats could not be parsed", RuntimeWarning)
 
         return stats
+
+    def _format_stat(self, stat: str, val: str):
+
+        to_int_stats = {
+            "wickets taken": "wickets",
+            "five wkts in an inns": "five wickets",
+            "balls bowled": "balls",
+            "ten wkts in a match": "ten wickets",
+            "runs conceded": "runs",
+            "four wkts in an inns": "four wickets",
+            "matches played": "matches",
+            "innings batted": "innings",
+            "not outs": "not outs",
+            "runs scored": "runs",
+            "balls faced": "balls",
+            "hundreds scored": "100s",
+            "fifties scored": "50s",
+            "boundary fours": "fours",
+            "boundary sixes": "sixes",
+            "catches taken": "catches",
+            "stumpings made": "stumpings",
+            "innings bowled in": "innings bowled",
+        }
+        to_float_stats = {
+            "batting average": "average",
+            "batting strike rate": "sr",
+            "bowling average": "average",
+            "bowling strike rate": "sr",
+            "economy rate": "er",
+        }
+        to_str_stats = {
+            "highest inns score": "hs",
+            "best innings bowling": "best bowling innings",
+            "best match bowling": "best bowling match",
+        }
+
+        if stat in to_int_stats.keys():
+            stat = to_int_stats[stat]
+            return stat, BaseCricinfoPage.safe_float(val)
+
+        elif stat in to_float_stats.keys():
+            stat = to_float_stats[stat]
+            return stat, BaseCricinfoPage.safe_float(val)
+        else:
+            stat = to_str_stats.get(stat, stat)
+            return stat, val

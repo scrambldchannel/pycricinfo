@@ -10,10 +10,10 @@ def test_player():
     assert p.full_name == "Dean Mervyn Jones"
     assert p.batting_style == "Right-hand bat"
     assert p.bowling_style == "Right-arm offbreak"
-    assert p.player_stats["batting"]["Tests"]["balls faced"] == 7427
-    assert p.player_stats["batting"]["Tests"]["catches taken"] == 34
-    assert p.player_stats["batting"]["ODIs"]["matches played"] == 164
-    assert p.player_stats["batting"]["Tests"]["stumpings made"] == 0
+    assert p.player_stats["batting"]["Tests"]["balls"] == 7427
+    assert p.player_stats["batting"]["Tests"]["catches"] == 34
+    assert p.player_stats["batting"]["ODIs"]["matches"] == 164
+    assert p.player_stats["batting"]["Tests"]["stumpings"] == 0
 
 
 def test_player_to_from_file():
@@ -30,7 +30,7 @@ def test_player_to_from_file():
     assert p2.full_name == "Isaac Vivian Alexander Richards"
     assert p2.batting_style == "Right-hand bat"
     assert p2.bowling_style == "Right-arm slow, Right-arm offbreak"
-    assert p2.player_stats["batting"]["Tests"]["highest inns score"] == "291"
+    assert p2.player_stats["batting"]["Tests"]["hs"] == "291"
 
     p = Path("52812.html")
     p.unlink(missing_ok=True)
@@ -38,11 +38,11 @@ def test_player_to_from_file():
 
 def test_player_stats():
     p = Player(7924)
-    assert p.player_stats["batting"]["Tests"]["highest inns score"] == "334*"
-    assert p.player_stats["bowling"]["First-class"]["wickets taken"] == 2
-    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == 1
-    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == 1
-    assert p.player_stats["bowling"]["First-class"]["five wkts in an inns"] == 0
-    assert p.player_stats["batting"]["List A"]["stumpings made"] == 0
-    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == 1
-    assert p.player_stats["bowling"]["Tests"]["five wkts in an inns"] == 0
+    assert p.player_stats["batting"]["Tests"]["hs"] == "334*"
+    assert p.player_stats["bowling"]["First-class"]["wickets"] == 2
+    assert p.player_stats["bowling"]["Tests"]["wickets"] == 1
+    assert p.player_stats["bowling"]["Tests"]["wickets"] == 1
+    assert p.player_stats["bowling"]["First-class"]["five wickets"] == 0
+    assert p.player_stats["batting"]["List A"]["stumpings"] == 0
+    assert p.player_stats["bowling"]["Tests"]["wickets"] == 1
+    assert p.player_stats["bowling"]["Tests"]["five wickets"] == 0
