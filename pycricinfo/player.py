@@ -25,6 +25,9 @@ class Player(BaseCricinfoPage):
 
     @classmethod
     def from_file(cls, html_file: str):
+        """
+        Load the player html from a previously saved file
+        """
         with open(html_file, "r") as f:
             # get player id
             soup = Soup(f.read())
@@ -38,15 +41,24 @@ class Player(BaseCricinfoPage):
 
     @cached_property
     def player_info_soup(self) -> Soup:
+        """
+        The player html as a Soup object
+        """
         return self.soup.find("p", attrs={"class": "ciPlayerinformationtxt"})
 
     @cached_property
     def name(self) -> str:
+        """
+        The player's name
+        """
         info = self.soup.find("div", attrs={"class": "ciPlayernametxt"}, mode="first")
         return info.find("h1", mode="first").text
 
     @cached_property
     def full_name(self) -> Optional[str]:
+        """
+        The player's long name
+        """
         for i in self.player_info_soup:
             if i.find("b").text == "Full name":
                 return i.find("span", mode="first").text
@@ -54,6 +66,10 @@ class Player(BaseCricinfoPage):
 
     @cached_property
     def batting_style(self) -> Optional[str]:
+        """
+        The player's batting style eg Right-hand bat
+        """
+
         for i in self.player_info_soup:
             if i.find("b").text == "Batting style":
                 return i.find("span", mode="first").text
@@ -61,6 +77,10 @@ class Player(BaseCricinfoPage):
 
     @cached_property
     def bowling_style(self) -> Optional[str]:
+        """
+        The player's bowling style(s) eg 'Right-arm offbreak'. Note, may return several, comma separated
+        """
+
         for i in self.player_info_soup:
             if i.find("b").text == "Bowling style":
                 return i.find("span", mode="first").text
@@ -68,6 +88,10 @@ class Player(BaseCricinfoPage):
 
     @cached_property
     def player_stats(self) -> dict:
+        """
+        The player's stats as a dict
+        """
+
         stats = {}
 
         try:
@@ -155,7 +179,9 @@ class Player(BaseCricinfoPage):
         return stats
 
     def _format_stat(self, stat: str, val: str):
-
+        """
+        Helper method to map stats to names and types. Needs improvement
+        """
         to_int_stats = {
             "wickets taken": "wickets",
             "five wkts in an inns": "five wickets",
