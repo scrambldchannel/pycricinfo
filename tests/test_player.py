@@ -10,10 +10,10 @@ def test_player():
     assert p.full_name == "Dean Mervyn Jones"
     assert p.batting_style == "Right-hand bat"
     assert p.bowling_style == "Right-arm offbreak"
-    assert p.player_stats["batting"]["Tests"]["balls faced"] == "7427"
-    assert p.player_stats["batting"]["Tests"]["catches taken"] == "34"
-    assert p.player_stats["batting"]["ODIs"]["matches played"] == "164"
-    assert p.player_stats["batting"]["Tests"]["stumpings made"] == "0"
+    assert p.player_stats["batting"]["Tests"]["balls faced"] == 7427
+    assert p.player_stats["batting"]["Tests"]["catches taken"] == 34
+    assert p.player_stats["batting"]["ODIs"]["matches played"] == 164
+    assert p.player_stats["batting"]["Tests"]["stumpings made"] == 0
 
 
 def test_player_to_from_file():
@@ -39,10 +39,10 @@ def test_player_to_from_file():
 def test_player_stats():
     p = Player(7924)
     assert p.player_stats["batting"]["Tests"]["highest inns score"] == "334*"
-    assert p.player_stats["bowling"]["First-class"]["wickets taken"] == "2"
-    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == "1"
-    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == "1"
-    assert p.player_stats["bowling"]["First-class"]["five wkts in an inns"] == "0"
-    assert p.player_stats["batting"]["List A"]["stumpings made"] == "0"
-    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == "1"
-    assert p.player_stats["bowling"]["Tests"]["five wkts in an inns"] == "0"
+    assert p.player_stats["bowling"]["First-class"]["wickets taken"] == 2
+    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == 1
+    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == 1
+    assert p.player_stats["bowling"]["First-class"]["five wkts in an inns"] == 0
+    assert p.player_stats["batting"]["List A"]["stumpings made"] == 0
+    assert p.player_stats["bowling"]["Tests"]["wickets taken"] == 1
+    assert p.player_stats["bowling"]["Tests"]["five wkts in an inns"] == 0

@@ -69,6 +69,32 @@ class Player(BaseCricinfoPage):
     @cached_property
     def player_stats(self) -> dict:
         stats = {}
+        to_int_stats = [
+            "wickets taken",
+            "five wkts in an inns",
+            "balls bowled",
+            "ten wkts in a match",
+            "runs conceded",
+            "four wkts in an inns",
+            "matches played",
+            "innings batted",
+            "not outs",
+            "runs scored",
+            "balls faced",
+            "hundreds scored",
+            "fifties scored",
+            "boundary fours",
+            "boundary sixes",
+            "catches taken",
+            "stumpings made",
+        ]
+        to_float_stats = [
+            "batting average",
+            "batting strike rate",
+            "bowling average",
+            "bowling strike rate",
+            "economy rate",
+        ]
 
         try:
             etables = self.soup.find(
@@ -99,10 +125,19 @@ class Player(BaseCricinfoPage):
                     grade = stat_columns[0].text
 
                     for index, col in enumerate(stat_columns[1:]):
+                        stat = header_columns[index + 1]
 
-                        grade_stats[header_columns[index + 1]] = stat_columns[
-                            index + 1
-                        ].text
+                        val = stat_columns[index + 1].text
+                        # hack to do type conversion
+
+                        if stat in to_int_stats:
+                            val = BaseCricinfoPage.safe_int(val)
+                        elif stat in to_float_stats:
+                            val = BaseCricinfoPage.safe_float(val)
+                        else:
+                            pass
+
+                        grade_stats[stat] = val
 
                     batting[grade] = grade_stats
 
@@ -131,10 +166,19 @@ class Player(BaseCricinfoPage):
                     grade = stat_columns[0].text
 
                     for index, col in enumerate(stat_columns[1:]):
+                        stat = header_columns[index + 1]
 
-                        grade_stats[header_columns[index + 1]] = stat_columns[
-                            index + 1
-                        ].text
+                        val = stat_columns[index + 1].text
+                        # hack to do type conversion
+
+                        if stat in to_int_stats:
+                            val = BaseCricinfoPage.safe_int(val)
+                        elif stat in to_float_stats:
+                            val = BaseCricinfoPage.safe_float(val)
+                        else:
+                            pass
+
+                        grade_stats[stat] = val
 
                     bowling[grade] = grade_stats
 
