@@ -2,7 +2,7 @@ import json
 import warnings
 from datetime import datetime
 from functools import cached_property
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from gazpacho import Soup, get
 from gazpacho.utils import HTTPError
@@ -293,6 +293,21 @@ class Match(BaseCricinfoPage):
                                 if p["id"] == id:
                                     name = p["name"]
 
+                    # try to get FOW
+                    # strange hack to pass mypy checks but doesn't seem necessary and needs to be reviewed
+                    fow: Dict[str, Optional[Any]] = {}
+
+                    if b.get("runningScore"):
+                        fow["runs"] = BaseCricinfoPage.safe_int(
+                            b.get("runningScore", {}).get("runs")
+                        )
+                        fow["wickets"] = BaseCricinfoPage.safe_int(
+                            b.get("runningScore", {}).get("wickets")
+                        )
+
+                    if b.get("runningOver"):
+                        fow["overs"] = BaseCricinfoPage.safe_float(b.get("runningOver"))
+
                     batting.append(
                         {
                             "id": id,
@@ -304,19 +319,8 @@ class Match(BaseCricinfoPage):
                             "fours": BaseCricinfoPage.safe_int(b.get("fours")),
                             "sixes": BaseCricinfoPage.safe_int(b.get("sixes")),
                             "sr": BaseCricinfoPage.safe_float(b.get("strikeRate")),
-                            "fow": {
-                                "runs": BaseCricinfoPage.safe_int(
-                                    b.get("runningScore", {}).get("runs")
-                                ),
-                                "wickets": BaseCricinfoPage.safe_int(
-                                    b.get("runningScore", {}).get("wickets")
-                                ),
-                                # overs expressed as floats is a bit iffy
-                                "overs": BaseCricinfoPage.safe_float(
-                                    b.get("runningOver")
-                                ),
-                            },
-                        }
+                            "fow": fow,
+                        },
                     )
 
         return batting
