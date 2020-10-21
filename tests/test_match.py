@@ -143,11 +143,18 @@ def test_no_embedded_json():
 def test_match_stats():
 
     # more needed
-    m = Match(62396)
+    m = Match(63438)
 
     stats = m.match_stats
 
     assert isinstance(stats, dict)
+    assert m.match_stats["all_innings"][1]["batting"][1]["name"] == "Kris Srikkanth"
+    assert m.match_stats["all_innings"][0]["batting"][2]["runs"] == 210
+
+    assert m.match_stats["all_innings"][3]["bowling"][2]["runs"] == 146
+    assert m.match_stats["all_innings"][3]["bowling"][2]["wickets"] == 5
+
+    assert m.match_stats["all_innings"][2]["bowling"][0]["wides"] == 0
 
 
 def test__all_innings():
