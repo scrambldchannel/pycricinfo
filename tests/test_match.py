@@ -143,7 +143,7 @@ def test_no_embedded_json():
 def test_match_stats():
 
     # more needed
-    m = Match(1233446)
+    m = Match(62396)
 
     stats = m.match_stats
 
