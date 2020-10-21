@@ -2,7 +2,7 @@ import json
 import warnings
 from datetime import datetime
 from functools import cached_property
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from gazpacho import Soup, get
 from gazpacho.utils import HTTPError
@@ -294,7 +294,8 @@ class Match(BaseCricinfoPage):
                                     name = p["name"]
 
                     # try to get FOW
-                    fow = {}
+                    # strange hack to pass mypy checks but doesn't seem necessary and needs to be reviewed
+                    fow: Dict[str, Optional[Any]] = {}
 
                     if b.get("runningScore"):
                         fow["runs"] = BaseCricinfoPage.safe_int(
@@ -305,7 +306,7 @@ class Match(BaseCricinfoPage):
                         )
 
                     if b.get("runningOver"):
-                        fow["overs"] = b.get("runningOver")
+                        fow["overs"] = BaseCricinfoPage.safe_float(b.get("runningOver"))
 
                     batting.append(
                         {
