@@ -140,6 +140,16 @@ def test_no_embedded_json():
         print(m.embedded_json)
 
 
+def test_match_stats():
+
+    # more needed
+    m = Match(1233446)
+
+    stats = m.match_stats
+
+    assert isinstance(stats, dict)
+
+
 def test__all_innings():
 
     # more needed

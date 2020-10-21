@@ -211,6 +211,13 @@ class Match(BaseCricinfoPage):
             return [{}, {}]
 
     @cached_property
+    def match_stats(self) -> dict:
+        return {
+            # think about any other metadata that belongs here
+            "all_innings": self._all_innings,
+        }
+
+    @cached_property
     def _all_innings(self) -> List[dict]:
 
         all_innings = []
@@ -264,42 +271,45 @@ class Match(BaseCricinfoPage):
 
         batting = []
 
-        for b in self._innings_details_list[index]["batsmen"]:
+        details = self._innings_details_list[index]
 
-            id = int(b["href"].split("/")[6].split(".")[0])
+        if details:
+            for b in details["batsmen"]:
 
-            # bit of a hack to get the player's name
-            name = ""
+                id = int(b["href"].split("/")[6].split(".")[0])
 
-            for t in self.teams:
-                if t["id"] == self._get_innings_headline(index)["batting_team_id"]:
-                    for p in t["players"]:
-                        if p["id"] == id:
-                            name = p["name"]
+                # bit of a hack to get the player's name
+                name = ""
 
-            batting.append(
-                {
-                    "id": id,
-                    "name": name,
-                    "captain": b.get("captain"),
-                    "runs": BaseCricinfoPage.safe_int(b.get("runs")),
-                    "balls": BaseCricinfoPage.safe_int(b.get("ballsFaced")),
-                    "minutes": BaseCricinfoPage.safe_int(b.get("minutes")),
-                    "fours": BaseCricinfoPage.safe_int(b.get("fours")),
-                    "sixes": BaseCricinfoPage.safe_int(b.get("sixes")),
-                    "sr": BaseCricinfoPage.safe_float(b.get("strikeRate")),
-                    "fow": {
-                        "runs": BaseCricinfoPage.safe_int(
-                            b.get("runningScore", {}).get("runs")
-                        ),
-                        "wickets": BaseCricinfoPage.safe_int(
-                            b.get("runningScore", {}).get("wickets")
-                        ),
-                        # overs expressed as floats is a bit iffy
-                        "overs": BaseCricinfoPage.safe_float(b.get("runningOver")),
-                    },
-                }
-            )
+                for t in self.teams:
+                    if t["id"] == self._get_innings_headline(index)["batting_team_id"]:
+                        for p in t["players"]:
+                            if p["id"] == id:
+                                name = p["name"]
+
+                batting.append(
+                    {
+                        "id": id,
+                        "name": name,
+                        "captain": b.get("captain"),
+                        "runs": BaseCricinfoPage.safe_int(b.get("runs")),
+                        "balls": BaseCricinfoPage.safe_int(b.get("ballsFaced")),
+                        "minutes": BaseCricinfoPage.safe_int(b.get("minutes")),
+                        "fours": BaseCricinfoPage.safe_int(b.get("fours")),
+                        "sixes": BaseCricinfoPage.safe_int(b.get("sixes")),
+                        "sr": BaseCricinfoPage.safe_float(b.get("strikeRate")),
+                        "fow": {
+                            "runs": BaseCricinfoPage.safe_int(
+                                b.get("runningScore", {}).get("runs")
+                            ),
+                            "wickets": BaseCricinfoPage.safe_int(
+                                b.get("runningScore", {}).get("wickets")
+                            ),
+                            # overs expressed as floats is a bit iffy
+                            "overs": BaseCricinfoPage.safe_float(b.get("runningOver")),
+                        },
+                    }
+                )
 
         return batting
 
