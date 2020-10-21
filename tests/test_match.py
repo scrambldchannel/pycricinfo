@@ -75,7 +75,7 @@ def test_series():
 def test_ground():
     m = Match(62396)
     assert isinstance(m.series, dict)
-    assert m.ground["id"] == 61
+    assert m.ground["id"] == 56441
     assert m.ground["name"] == "Melbourne Cricket Ground"
 
 
