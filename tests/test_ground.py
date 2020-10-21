@@ -7,6 +7,8 @@ def test_ground():
     g = Ground(59269)
     assert g.id == 59269
 
+    assert isinstance(g.html, str)
+
 
 def test_ground_to_from_file():
     g = Ground(57129)

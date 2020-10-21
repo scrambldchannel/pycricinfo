@@ -174,7 +174,7 @@ class Match(BaseCricinfoPage):
     def ground(self) -> Optional[dict]:
         try:
             return {
-                "id": BaseCricinfoPage.safe_int(self.json["match"]["ground_id"]),
+                "id": BaseCricinfoPage.safe_int(self.json["match"]["ground_object_id"]),
                 "name": self.json["match"]["ground_name"],
             }
         except Exception:
@@ -207,7 +207,7 @@ class Match(BaseCricinfoPage):
             return teams
 
         except Exception:
-            warnings.warn("Property not found in page", RuntimeWarning)
+            warnings.warn(f"Could not parse teams for match {self.id}", RuntimeWarning)
             return [{}, {}]
 
     @cached_property
