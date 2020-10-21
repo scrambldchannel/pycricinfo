@@ -79,7 +79,7 @@ def test_ground():
     assert m.ground["name"] == "Melbourne Cricket Ground"
 
 
-def test_teams():
+def test_teams(matches):
     m = Match(62396)
 
     assert len(m.teams) == 2
@@ -108,13 +108,23 @@ def test_teams():
 
         assert p.name == random_player["name"]
 
+    m3 = Match(random.choice(matches))
+    assert len(m3.teams) == 2
+    # get a random player from each team and check the id is valid
+    for t in m3.teams:
+        random_player = t["players"][random.randint(0, 10)]
 
-def test_match_to_from_file():
+        p = Player(random_player["id"])
 
-    m = Match(1216499)
+        assert p.name == random_player["name"]
+
+
+def test_match_to_from_file(matches):
+
+    m = Match(random.choice(matches))
     m.to_files()
 
-    m2 = Match.from_files(html_file="1216499.html", json_file="1216499.json")
+    m2 = Match.from_files(html_file=f"{m.id}.html", json_file=f"{m.id}.json")
 
     assert m.id == m2.id
     assert m.name == m2.name
@@ -124,9 +134,9 @@ def test_match_to_from_file():
     assert m.date == m2.date
     assert m.ground == m2.ground
 
-    p = Path("1216499.html")
+    p = Path(f"{m.id}.html")
     p.unlink(missing_ok=True)
-    p = Path("1216499.json")
+    p = Path(f"{m.id}.json")
     p.unlink(missing_ok=True)
 
 
@@ -171,7 +181,7 @@ def test_match_stats():
     assert m.match_stats["all_innings"][2]["bowling"][0]["wides"] == 0
 
 
-def test__all_innings():
+def test_all_innings():
 
     # more needed
     m = Match(1216509)
