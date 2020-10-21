@@ -41,7 +41,7 @@ class Player(BaseCricinfoPage):
         return self.soup.find("p", attrs={"class": "ciPlayerinformationtxt"})
 
     @cached_property
-    def name(self) -> Soup:
+    def name(self) -> str:
         info = self.soup.find("div", attrs={"class": "ciPlayernametxt"}, mode="first")
         return info.find("h1", mode="first").text
 
