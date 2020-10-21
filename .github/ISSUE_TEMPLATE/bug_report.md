@@ -13,7 +13,7 @@ A clear and concise description of what the bug is. Please include the id of the
 
 **To Reproduce**
 
-insert python code
+Write some code here to show how to reproduce the problem. Even better, raise a PR with a new test that shows what is failing :)
 
 **Expected behaviour**
 
