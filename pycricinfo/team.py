@@ -26,6 +26,10 @@ class Team(BaseCricinfoPage):
 
     @classmethod
     def from_file(cls, html_file: str):
+        """
+        Load this team from a file containing its html
+        """
+
         with open(html_file, "r") as f:
             # get team_id
             soup = Soup(f.read())
@@ -39,6 +43,9 @@ class Team(BaseCricinfoPage):
 
     @cached_property
     def embedded_json(self) -> Optional[dict]:
+        """
+        Looks for the json object embedded in the html and returns it
+        """
         try:
             json_text = self.soup.find(
                 "script", attrs={"id": "__NEXT_DATA__"}, mode="first"

@@ -22,15 +22,24 @@ class LiveScores(object):
 
     @cached_property
     def html(self) -> str:
+        """
+        The html from this page
+        """
         r = get(self.url)
         return r
 
     @cached_property
     def soup(self) -> Soup:
+        """
+        The object for the livescores page
+        """
         return Soup(self.html)
 
     @cached_property
     def embedded_json(self) -> dict:
+        """
+        Try to locate the embedded json inside the html
+        """
         try:
             json_text = self.soup.find(
                 "script", attrs={"id": "__NEXT_DATA__"}, mode="first"
@@ -44,6 +53,9 @@ class LiveScores(object):
 
     @cached_property
     def live_matches(self) -> List[int]:
+        """
+        Return a list of all live matches
+        """
         match_ids = []
         for match in self.embedded_json["props"]["pageProps"]["data"]["content"][
             "leagueEvents"

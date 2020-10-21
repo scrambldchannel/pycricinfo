@@ -12,7 +12,10 @@ class BaseCricinfoPage:
     """
 
     def __init__(self, id):
-        self.id = id
+        """
+        Class constructor
+        """
+        self.id: int = id
 
         self.url = None
         self.json_url = None
@@ -24,7 +27,9 @@ class BaseCricinfoPage:
 
     @cached_property
     def html(self) -> str:
-
+        """
+        Caches the html from the page associate with the object
+        """
         if self.html_file:
             with open(self.html_file, "r") as f:
                 return f.read()
@@ -41,10 +46,15 @@ class BaseCricinfoPage:
 
     @cached_property
     def soup(self) -> Soup:
+        """
+        Caches the Soup object derived from the html
+        """
         return Soup(self.html)
 
     def to_file(self, html_file: str = None) -> None:
-
+        """
+        Write the page html from the object to a file. Default, is "./{id}.html"
+        """
         if not html_file:
             html_file = f"{self.id}.html"
 
@@ -52,6 +62,9 @@ class BaseCricinfoPage:
             f.write(self.soup.html)
 
     def to_json_file(self, json_file: str = None) -> None:
+        """
+        Write the page json from the object to a file. Default, is "./{id}.json"
+        """
 
         if self.json:
             if not json_file:
@@ -62,7 +75,9 @@ class BaseCricinfoPage:
 
     @staticmethod
     def safe_int(int_string: str = "0") -> int:
-        # bit of a hack to deal with None, '-', '', ' '
+        """
+        Cast various string representations of zero to int safely
+        """
         int_things = [None, "", "-", "0"]
 
         if int_string in int_things:
@@ -72,7 +87,9 @@ class BaseCricinfoPage:
 
     @staticmethod
     def safe_float(float_string: str = "0.0") -> float:
-        # bit of a hack to deal with None, '-', '', ' '
+        """
+        Cast various string representations of zero to float safely
+        """
         float_things = [None, "", "-", "0"]
 
         if float_string in float_things:
