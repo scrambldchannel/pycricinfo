@@ -5,7 +5,7 @@ from pycricinfo.base import BaseCricinfoPage
 
 class Ground(BaseCricinfoPage):
     """
-    Abstraction of a team
+    Abstraction of a ground. Pretty much empty at this stage.
     """
 
     def __init__(
@@ -22,6 +22,9 @@ class Ground(BaseCricinfoPage):
 
     @classmethod
     def from_file(cls, html_file: str):
+        """
+        Load from offline copy of html
+        """
         with open(html_file, "r") as f:
             # get id
             soup = Soup(f.read())
