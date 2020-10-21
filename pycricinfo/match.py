@@ -116,14 +116,18 @@ class Match(BaseCricinfoPage):
         try:
             if self.json["match"].get("international_valid") != "1":
                 return {
-                    "id": int(self.json["match"].get("general_class_id", -1)),
+                    "id": BaseCricinfoPage.safe_int(
+                        self.json["match"].get("general_class_id", -1)
+                    ),
                     "name": self.json["match"]["general_class_card"]
                     if self.json["match"]["general_class_card"] != ""
                     else self.json["match"]["general_class_name"],
                 }
             else:
                 return {
-                    "id": int(self.json["match"].get("general_class_id", -1)),
+                    "id": BaseCricinfoPage.safe_int(
+                        self.json["match"].get("general_class_id", -1)
+                    ),
                     "name": self.json["match"]["international_class_card"],
                 }
 
@@ -135,7 +139,9 @@ class Match(BaseCricinfoPage):
     def series(self) -> Optional[dict]:
         try:
             series = {
-                "id": int(self.json["series"][0]["core_recreation_id"]),
+                "id": BaseCricinfoPage.safe_int(
+                    self.json["series"][0]["core_recreation_id"]
+                ),
                 "name": self.json["series"][0]["series_name"],
             }
             return series
@@ -147,7 +153,9 @@ class Match(BaseCricinfoPage):
     def season(self) -> Optional[dict]:
         try:
             return {
-                "id": int(self.json["match"]["season"].split("/")[0]),
+                "id": BaseCricinfoPage.safe_int(
+                    self.json["match"]["season"].split("/")[0]
+                ),
                 "name": self.json["match"]["season"],
             }
         except Exception:
@@ -166,7 +174,7 @@ class Match(BaseCricinfoPage):
     def ground(self) -> Optional[dict]:
         try:
             return {
-                "id": int(self.json["match"]["ground_id"]),
+                "id": BaseCricinfoPage.safe_int(self.json["match"]["ground_id"]),
                 "name": self.json["match"]["ground_name"],
             }
         except Exception:
@@ -182,13 +190,15 @@ class Match(BaseCricinfoPage):
                 for p in self.json["team"][index]["player"]:
                     players.append(
                         {
-                            "id": int(p["object_id"]),
+                            "id": BaseCricinfoPage.safe_int(p["object_id"]),
                             "name": p["known_as"],
                         }
                     )
                 teams.append(
                     {
-                        "id": int(self.json["team"][index]["team_id"]),
+                        "id": BaseCricinfoPage.safe_int(
+                            self.json["team"][index]["team_id"]
+                        ),
                         "name": self.json["team"][index]["team_name"],
                         "players": players,
                     }
@@ -211,61 +221,57 @@ class Match(BaseCricinfoPage):
 
             for index, inn in enumerate(innings_list):
 
-                batting = self._get_innings_batting(index)
-
-                all_innings.append({"batting": batting})
-        return all_innings
-
-    def _get_innings_batting(self, index: int) -> dict:
-
-        inn = self._innings_list[index]
-
-        innings = {
-            "batting_team_id": int(inn["batting_team_id"]),
-            "bowling_team_id": int(inn["bowling_team_id"]),
-            "balls_limit": inn.get("ball_limit"),
-            "balls": inn.get("balls"),
-            "over_limit": inn.get("over_limit"),
-            "overs": inn.get("overs"),
-        }
-
-        details = self._innings_details_list
-
-        if details:
-            batting = []
-            for b in details[index]["batsmen"]:
-                id = int(b["href"].split("/")[6].split(".")[0])
-
-                # bit of a hack to get the player's name
-                name = ""
-
-                for t in self.teams:
-                    if t["id"] == innings["batting_team_id"]:
-                        for p in t["players"]:
-                            if p["id"] == id:
-                                name = p["name"]
-
-                batting.append(
+                all_innings.append(
                     {
-                        "id": id,
-                        "name": name,
-                        "captain": b.get("captain"),
-                        "runs": b.get("runs"),
-                        "balls": b.get("ballsFaced"),
-                        "minutes": b.get("minutes"),
-                        "fours": b.get("fours"),
-                        "sixes": b.get("sixes"),
-                        "sr": b.get("strikeRate"),
-                        "fow": {
-                            "runs": b.get("runningScore", {}).get("runs"),
-                            "wickets": b.get("runningScore", {}).get("wickets"),
-                            "overs": b.get("runningOver"),
-                        },
+                        "headline": self._get_innings_headline(index),
+                        "batting": self._get_innings_batting(index),
+                        "bowling": self._get_innings_bowling(index),
                     }
                 )
-            innings["batting"] = batting
+        return all_innings
 
-        return innings
+    def _get_innings_batting(self, index: int) -> Optional[list]:
+
+        batting = []
+
+        for b in self._innings_details_list[index]["batsmen"]:
+
+            id = int(b["href"].split("/")[6].split(".")[0])
+
+            # bit of a hack to get the player's name
+            name = ""
+
+            for t in self.teams:
+                if t["id"] == self._get_innings_headline(index)["batting_team_id"]:
+                    for p in t["players"]:
+                        if p["id"] == id:
+                            name = p["name"]
+
+            batting.append(
+                {
+                    "id": id,
+                    "name": name,
+                    "captain": b.get("captain"),
+                    "runs": BaseCricinfoPage.safe_int(b.get("runs")),
+                    "balls": BaseCricinfoPage.safe_int(b.get("ballsFaced")),
+                    "minutes": BaseCricinfoPage.safe_int(b.get("minutes")),
+                    "fours": BaseCricinfoPage.safe_int(b.get("fours")),
+                    "sixes": BaseCricinfoPage.safe_int(b.get("sixes")),
+                    "sr": BaseCricinfoPage.safe_float(b.get("strikeRate")),
+                    "fow": {
+                        "runs": BaseCricinfoPage.safe_int(
+                            b.get("runningScore", {}).get("runs")
+                        ),
+                        "wickets": BaseCricinfoPage.safe_int(
+                            b.get("runningScore", {}).get("wickets")
+                        ),
+                        # overs expressed as floats is a bit iffy
+                        "overs": BaseCricinfoPage.safe_float(b.get("runningOver")),
+                    },
+                }
+            )
+
+        return batting
 
     @cached_property
     def _innings_details_list(self) -> List:
@@ -284,3 +290,54 @@ class Match(BaseCricinfoPage):
         except Exception:
             warnings.warn("Property not found in page", RuntimeWarning)
             return None
+
+    def _get_innings_headline(self, index: int) -> dict:
+        inn = self._innings_list[index]
+        if inn:
+            return {
+                "batting_team_id": BaseCricinfoPage.safe_int(inn["batting_team_id"]),
+                "bowling_team_id": BaseCricinfoPage.safe_int(inn["bowling_team_id"]),
+                "balls_limit": BaseCricinfoPage.safe_int(inn.get("ball_limit")),
+                "balls": BaseCricinfoPage.safe_int(inn.get("balls")),
+                "over_limit": BaseCricinfoPage.safe_float(inn.get("over_limit")),
+                "overs": BaseCricinfoPage.safe_float(inn.get("overs")),
+            }
+        else:
+            return {}
+
+    def _get_innings_bowling(self, index: int) -> Optional[list]:
+
+        bowling = []
+
+        for b in self._innings_details_list[index]["bowlers"]:
+
+            id = int(b["href"].split("/")[6].split(".")[0])
+
+            # bit of a hack to get the player's name
+            name = ""
+
+            for t in self.teams:
+                if t["id"] == self._get_innings_headline(index)["bowling_team_id"]:
+                    for p in t["players"]:
+                        if p["id"] == id:
+                            name = p["name"]
+
+            bowling.append(
+                {
+                    "id": id,
+                    "name": name,
+                    "captain": b.get("captain"),
+                    "overs": BaseCricinfoPage.safe_float(b.get("overs")),
+                    "maidens": BaseCricinfoPage.safe_int(b.get("maidens")),
+                    "runs": BaseCricinfoPage.safe_int(b.get("conceded")),
+                    "wickets": BaseCricinfoPage.safe_int(b.get("wickets")),
+                    "dotballs": BaseCricinfoPage.safe_int(b.get("dots")),
+                    "fours": BaseCricinfoPage.safe_int(b.get("foursConceded")),
+                    "sixes": BaseCricinfoPage.safe_int(b.get("sixesConceded")),
+                    "noballs": BaseCricinfoPage.safe_int(b.get("noballs")),
+                    "wides": BaseCricinfoPage.safe_int(b.get("wides")),
+                    "er": BaseCricinfoPage.safe_float(b.get("economyRate")),
+                }
+            )
+
+        return bowling
