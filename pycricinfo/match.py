@@ -221,13 +221,11 @@ class Match(BaseCricinfoPage):
 
             for index, inn in enumerate(innings_list):
 
-                all_innings.append(
-                    {
-                        "headline": self._get_innings_headline(index),
-                        "batting": self._get_innings_batting(index),
-                        "bowling": self._get_innings_bowling(index),
-                    }
-                )
+                innings_stats = self._get_innings_headline(index)
+                innings_stats["batting"] = self._get_innings_batting(index)
+                innings_stats["bowling"] = self._get_innings_bowling(index)
+
+                all_innings.append(innings_stats)
         return all_innings
 
     @cached_property
