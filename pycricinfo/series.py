@@ -30,6 +30,9 @@ class Series(BaseCricinfoPage):
 
     @classmethod
     def from_files(cls, html_file: str, json_file: str):
+        """
+        Create series object from offline files
+        """
         with open(html_file, "r") as f:
             # get series_id
             soup = Soup(f.read())
@@ -42,6 +45,9 @@ class Series(BaseCricinfoPage):
         return cls(id=id, html_file=html_file, json_file=json_file)
 
     def to_files(self, html_file: str = None, json_file: str = None) -> None:
+        """
+        Save the json and html for the series to files
+        """
 
         if not html_file:
             html_file = f"{self.id}.html"
@@ -55,6 +61,9 @@ class Series(BaseCricinfoPage):
 
     @cached_property
     def json(self) -> dict:
+        """
+        The JSON feed for this series
+        """
 
         if self.json_file:
             with open(self.json_file, "r") as f:
@@ -65,6 +74,9 @@ class Series(BaseCricinfoPage):
     # need to think about whether these belong here or somewhere else
     @cached_property
     def seasons(self) -> List[int]:
+        """
+        Get all the seasons for this series
+        """
         r = get(f"{self.json_url}seasons/")
 
         seasons = []
@@ -74,6 +86,9 @@ class Series(BaseCricinfoPage):
         return seasons
 
     def get_season_matches(self, season: int) -> List[int]:
+        """
+        Get all match ids that formed part of a specific season for this series
+        """
         r = get(f"{self.json_url}seasons/{season}/events/")
         matches = []
 
@@ -84,6 +99,10 @@ class Series(BaseCricinfoPage):
 
     @cached_property
     def all_matches(self) -> List[int]:
+        """
+        Iterate through all seasons of this series and return a list of all match ids
+        """
+
         matches = []
         for season in self.seasons:
             for match in self.get_season_matches(season):
@@ -92,10 +111,18 @@ class Series(BaseCricinfoPage):
 
     @cached_property
     def is_tournament(self) -> bool:
+        """
+        Simple flag to indicate whether series is a tournament
+        """
+
         return self.json.get("isTournament", False)
 
     @cached_property
     def name(self) -> Optional[str]:
+        """
+        The name of the series eg "Indian Premier League"
+        """
+
         return self.json.get("name")
 
     @cached_property
