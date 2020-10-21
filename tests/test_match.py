@@ -94,6 +94,20 @@ def test_teams():
 
         assert p.name == random_player["name"]
 
+    m2 = Match(1152847)
+    assert len(m2.teams) == 2
+    assert len(m2.teams[0]["players"]) == 11
+    # concussion sub
+    assert len(m2.teams[1]["players"]) == 12
+
+    # get a random player from each team and check the id is valid
+    for t in m2.teams:
+        random_player = t["players"][random.randint(0, 10)]
+
+        p = Player(random_player["id"])
+
+        assert p.name == random_player["name"]
+
 
 def test_match_to_from_file():
 
