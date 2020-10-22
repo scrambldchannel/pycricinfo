@@ -196,6 +196,17 @@ class Match(BaseCricinfoPage):
             return None
 
     @cached_property
+    def status(self):
+        """
+        The status of the match as a string - 'forthcoming', 'current', 'complete'
+        """
+        try:
+            return self.json["match"]["match_status"]
+        except Exception:
+            warnings.warn("Property not found in page", RuntimeWarning)
+            return None
+
+    @cached_property
     def result(self):
         """
         The result of the match as a string
@@ -226,6 +237,7 @@ class Match(BaseCricinfoPage):
         """
         The two teams as lists of dicts containing id and name
         """
+
         try:
             teams = []
             for index, team in enumerate(self.json["team"]):
