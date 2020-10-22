@@ -112,11 +112,12 @@ def test_teams(matches):
     assert len(m3.teams) == 2
     # get a random player from each team and check the id is valid
     for t in m3.teams:
-        random_player = t["players"][random.randint(0, 10)]
+        if t.get("players"):
+            random_player = t["players"][random.randint(0, 10)]
 
-        p = Player(random_player["id"])
+            p = Player(random_player["id"])
 
-        assert p.name == random_player["name"]
+            assert p.name == random_player["name"]
 
 
 def test_match_to_from_file(matches):
