@@ -23,7 +23,7 @@ def test_ipl():
     assert m.id == 734043
     assert (
         m.name
-        == "Pepsi Indian Premier League, Qualifier 1: Kings XI Punjab v Kolkata Knight Riders at Kolkata, May 27-28, 2014"
+        == "Pepsi Indian Premier League, Qualifier 1: Kolkata Knight Riders v Kings XI Punjab at Kolkata, May 27-28, 2014"
     )
     assert m.status == "complete"
 
@@ -77,7 +77,7 @@ def test_series():
 
 def test_status(matches):
     m = Match(random.choice(matches))
-    assert m.ground.status in ["forthcoming", "current", "complete"]
+    assert m.status in ["forthcoming", "current", "complete"]
 
 
 def test_ground():
