@@ -95,5 +95,9 @@ def test_get_season_matches():
         1216530,
         1216505,
         1216495,
+        1237177,
+        1237178,
+        1237180,
+        1237181,
     ]
     assert set(s.get_season_matches(2020)) == set(all_2020_games)
