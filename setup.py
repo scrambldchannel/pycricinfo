@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="pycricinfo",
-    version="0.0.1",
+    version="0.0.2",
     description="A lightweight wrapper around Cricinfo",
     license="MIT",
     install_requires=["gazpacho"],
