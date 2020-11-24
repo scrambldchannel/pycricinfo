@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import find_packages, setup
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -12,6 +12,7 @@ setup(
     author="Alexander Sutcliffe",
     author_email="sutcliffe.alex@gmail.com",
     url="http://github.com/scrambldchannel/pycricinfo",
+    packages=find_packages(),
     keywords="cricket",
     classifiers=["Development Status :: 3 - Alpha"],
 )

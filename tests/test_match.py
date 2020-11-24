@@ -15,6 +15,8 @@ def test_test_match():
         == "Australia tour of India, 1st Test: India v Australia at Chennai, Sep 18-22, 1986"
     )
 
+    assert m.status == "complete"
+
 
 def test_ipl():
     m = Match(734043)
@@ -23,6 +25,7 @@ def test_ipl():
         m.name
         == "Pepsi Indian Premier League, Qualifier 1: Kings XI Punjab v Kolkata Knight Riders at Kolkata, May 27-28, 2014"
     )
+    assert m.status == "complete"
 
 
 def test_date():
@@ -72,6 +75,11 @@ def test_series():
     assert m.series["name"] == "Sheffield Shield"
 
 
+def test_status(matches):
+    m = Match(random.choice(matches))
+    assert m.ground.status in ["forthcoming", "current", "complete"]
+
+
 def test_ground():
     m = Match(62396)
     assert isinstance(m.series, dict)
@@ -113,6 +121,7 @@ def test_teams(matches):
     # get a random player from each team and check the id is valid
     for t in m3.teams:
         if t.get("players"):
+
             random_player = t["players"][random.randint(0, 10)]
 
             p = Player(random_player["id"])
